@@ -8,7 +8,7 @@
 
 
  # GENERAL SETTINGS---------------
- myPath         <- file.path("C:", "Users", "fbas", "Documents", "GitHub")
+ myPath         <- file.path("C:", "Users", "fbas", "Documents", "GitHub")  # to adapt to your own path.
  dataPath       <- file.path(myPath, "FisheriesImpactTool", "Data")
  outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
  shapePath      <- file.path(myPath, "FisheriesImpactTool", "Shapes")
@@ -40,7 +40,7 @@ aggResult$LE_MET    <- factor(aggResult$LE_MET)
 
 
  # combine with (Eunis) Habitat
- pol                 <- readShapePoly(file.path(shapePath, "EUNIS_codes_Combined_ICES_FAO9_clipped"))
+ pol                 <- readShapePoly(file.path(shapePath, "EUNIS_codes_Combined_ICES_FAO9_clipped")) 
  library(doBy)
  aggResult           <- orderBy(~grID,data=aggResult)
  uniqueCoords        <- aggResult[,c("CELL_LONG","CELL_LATI")]
