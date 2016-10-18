@@ -1,33 +1,47 @@
 
 
-#-------------------------------------------------------------------------------
-#
-# Benthis WP2 workflow
-#
-# Designed by: Francois Bastardie, Niels Hintzen
-# Runs with: R3.0.2 and R2.15.x
-#
-# VMStools version: 0.70
-#
-#-------------------------------------------------------------------------------
+ ##----------------------------------------------------------------------------##
+ ##----------------------------------------------------------------------------##
+ ## Benthis WP2 workflow
+ ## on interpolated fishing VMS positions
+ ## Author: Francois Bastardie (DTU-Aqua), Niels Hintzen (IMARES)
+ ##----------------------------------------------------------------------------##
+ ##----------------------------------------------------------------------------##
 
-rm(list=ls())
-library(vmstools)
-library(maps)
-library(mapdata)
+
+ # GENERAL SETTINGS---------------
+ myPath         <- file.path("C:", "Users", "fbas", "Documents", "GitHub")  # to adapt to your own path.
+ dataPath       <- file.path(myPath, "FisheriesImpactTool", "Data")
+ outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
+ shapePath      <- file.path(myPath, "FisheriesImpactTool", "Shapes")
+ dir.create(outPath)
+ nameAggFile    <- "ALL_AggregatedSweptArea_12062015.RData"
+ load(file=file.path(inPath,nameAggFile)) # get aggResult from e.g. the WP2 BENTHIS workflow
+ ctry           <- "DNK"
+   
+
+ # subset for a year period
+ years     <- 2015
+ lat_range <- c(53,60)
+ lon_range <- c(-5,13)
+ raster_res<- c(0.0167,0.0167) # 1 by 1 minute
+ #--------------------------------
+
+
+
+ rm(list=ls())
+ library(vmstools)
+ library(maps)
+ library(mapdata)
 
 if(.Platform$OS.type == "unix") {
- codePath  <- file.path("~","BENTHIS")
  dataPath  <- file.path("~","BENTHIS","EflaloAndTacsat")
  outPath   <- file.path("~","BENTHIS", "outputs")
- polPath   <- file.path("~","BENTHIS", "BalanceMaps") 
  }
  
 if(.Platform$OS.type == "windows") {
- codePath  <- "C:/BENTHIS/"
- dataPath  <- "C:/BENTHIS/EflaloAndTacsat/"
- outPath   <- "C:/BENTHIS/outputs/"
- polPath   <- "C:/BENTHIS/BalanceMaps"
+ dataPath  <- dataPath
+ outPath   <- outPath
  }
 
 
@@ -47,8 +61,8 @@ dir.create(file.path(outPath, a_year))
 
 #if(TRUE){
 
-  load(file.path(dataPath,paste("tacsat_", a_year,".RData", sep=''))); # get the tacsat object
-  load(file.path(dataPath,paste("eflalo_", a_year,".RData", sep=''))); # get the eflalo object
+  load(file.path(dataPath,paste("tacsat_", a_year,"_example.RData", sep=''))); # get the tacsat object
+  load(file.path(dataPath,paste("eflalo_", a_year,"_example.RData", sep=''))); # get the eflalo object
   tacsat <- formatTacsat(tacsat) # format each of the columns to the specified class
   eflalo <- formatEflalo(eflalo) # format each of the columns to the specified class
 
