@@ -1,4 +1,35 @@
 
+ ##----------------------------------------------------------------------------##
+ ##----------------------------------------------------------------------------##
+ ## Obtain spatial (retained) catches distribtuion by dispaching declared landings
+ ## on interpolated fishing VMS positions
+ ## Author: Francois Bastardie (DTU-Aqua), Niels Hintzen (IMARES)
+ ##----------------------------------------------------------------------------##
+ ##----------------------------------------------------------------------------##
+
+
+ # GENERAL SETTINGS---------------
+ myPath         <- file.path("C:", "Users", "fbas", "Documents", "GitHub")  # to adapt to your own path.
+ dataPath       <- file.path(myPath, "FisheriesImpactTool", "Data")
+ outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
+ shapePath      <- file.path(myPath, "FisheriesImpactTool", "Shapes")
+ dir.create(outPath)
+ nameAggFile    <- "ALL_AggregatedSweptArea_12062015.RData"
+ load(file=file.path(inPath,nameAggFile)) # get aggResult from e.g. the WP2 BENTHIS workflow
+ ctry           <- "DNK"
+   
+
+ # subset for a year period
+ years     <- 2015
+ lat_range <- c(53,60)
+ lon_range <- c(-5,13)
+ raster_res<- c(0.0167,0.0167) # 1 by 1 minute
+ #--------------------------------
+
+
+ library(vmstools)
+  
+
  ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!##
  ##!!!!!!!!!!!!!!!!!!!!COUPLE WITH CATCHES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!##
  ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!##
@@ -6,26 +37,22 @@
 
  if(FALSE){  # do not re-run...this takes ages!
 
- dataPath  <- "C:/BENTHIS/EflaloAndTacsat/"
- outPath   <- "C:/BENTHIS/outputs/"
+  #- PER YEAR
+  #  for (a_year in c(2005:2012)){
+  for (a_year in years){
 
-     #- PER YEAR
-#  for (a_year in c(2005:2012)){
-  for (a_year in c(2013:2014)){
-
-    dir.create(file.path(outPath,a_year,"interpolated", "plus"))
+    dir.create(file.path(dataPath, a_year, "interpolated", "plus"))
 
      # per year, load eflalo data,
-     load(file.path(dataPath,paste("eflalo_", a_year,".RData", sep=''))); # get the eflalo object
+     load(file.path(dataPath, paste("eflalo_", a_year,"_example.RData", sep=''))); # get the eflalo object
      eflalo <- formatEflalo(eflalo) # format each of the columns to the specified class
-     ctry   <- "DNK"
      eflalo <- eflalo[ grep(ctry, as.character(eflalo$VE_REF)),]  # keep the national vessels only.
 
      # Gear codes to keep (with assumed severe bottom impact)
      gears2keep            <- c("TBB","OTT","OTB","SSC","SDN","PTB","DRB")
      eflalo                <- eflalo[which(eflalo$LE_GEAR %in% gears2keep),]
 
-     fls <- dir(file.path(outPath,a_year,"interpolated"))
+     fls <- dir(file.path(dataPath, a_year, "interpolated"))
      fls <- fls[fls!="plus"]
 
      lst <- list(); count <- 0
@@ -33,7 +60,7 @@
          cat(paste(a_year, "\n"))
          cat(paste(iFile, "\n"))
          count <- count+1
-         load(file.path(outPath,a_year,"interpolated",iFile))  # get  tacsatIntGearVEREF
+         load(file.path(dataPath, a_year, "interpolated", iFile))  # get  tacsatIntGearVEREF
 
          a_vid   <-  tacsatIntGearVEREF$VE_REF [1]
          a_gear  <-  tacsatIntGearVEREF$LE_GEAR[1]
@@ -47,13 +74,13 @@
                                           # this is because sometimes the declaration of rectangle (in eflalo) does not match the rectangle from VMS points
 
          # check e.g. for cod
-         plotTools(tacsatIntGearVEREF,level="gridcell", xlim=c(-56,25),ylim=c(45,75),zlim=NULL,log=F, gridcell=c(0.1,0.05), color=NULL, control.tacsat=list(clm="LE_KG_COD"))
-         savePlot(file.path(outPath, a_year, "interpolated", "plus", paste("tacsatSweptAreaPlus_",a_vid, "_", a_gear, "_COD.jpeg", sep="")), type="jpeg")
-         plotTools(subset(eflalo, LE_GEAR == a_gear & VE_REF == a_vid), level="ICESrectangle",xlim=c(-56,25),ylim=c(45,65), zlim=NULL,log=F,color=NULL,control.eflalo=list(clm="LE_KG_COD"))
-         savePlot(file.path(outPath, a_year, "interpolated", "plus", paste("tacsatSweptAreaPlus_",a_vid, "_", a_gear, "_COD_EFLALO.jpeg", sep="")), type="jpeg")
+         plotTools(tacsatIntGearVEREF, level="gridcell", xlim=c(-56,25),ylim=c(45,75), zlim=NULL, log=F, gridcell=c(0.1,0.05), color=NULL, control.tacsat=list(clm="LE_KG_COD"))
+         #savePlot(file.path(outPath, a_year, "interpolated", "plus", paste("tacsatSweptAreaPlus_",a_vid, "_", a_gear, "_COD.jpeg", sep="")), type="jpeg")
+         plotTools(subset(eflalo, LE_GEAR == a_gear & VE_REF == a_vid), level="ICESrectangle", xlim=c(-56,25), ylim=c(45,65), zlim=NULL,log=F, color=NULL,control.eflalo=list(clm="LE_KG_COD"))
+         #savePlot(file.path(outPath, a_year, "interpolated", "plus", paste("tacsatSweptAreaPlus_",a_vid, "_", a_gear, "_COD_EFLALO.jpeg", sep="")), type="jpeg")
 
 
-         save(tacsatIntGearVEREF, file=file.path(outPath, a_year, "interpolated", "plus",
+         save(tacsatIntGearVEREF, file=file.path(dataPath, a_year, "interpolated", "plus",
                                                 paste("tacsatSweptAreaPlus_",a_vid, "_", a_gear, ".RData", sep="")),compress=T)
 
 
@@ -68,7 +95,7 @@
 
 
   #-----------------------------------------------------------------------------
-  # A FUNCTION (FOR LATER USE)
+  # A FUNCTION FROM BENTHIS WP2 (FOR LATER USE)
   #-----------------------------------------------------------------------------
   compute_swept_area <- function(
                               tacsatIntGearVEREF=tacsatIntGearVEREF,
@@ -188,7 +215,6 @@
 
    cols2keep <- c("VE_REF", "VE_LEN", "VE_KW", "SI_LATI","SI_LONG","SI_DATE", "SI_DATIM", "LE_GEAR","LE_MET","SWEPT_AREA_KM2","SWEPT_AREA_KM2_LOWER","SWEPT_AREA_KM2_UPPER")
 
- #  for (a_year in c(2005:2013)){
    for (a_year in c(2013:2014)){
     cat(paste(a_year, "\n"))
 
@@ -253,12 +279,7 @@
    #---------------------------------------------------
    #---------------------------------------------------
    #---------------------------------------------------
-   # TO DO PASCAL from the 'tacsatSweptAreaPlus_ objects':
-   # 1. from the catches, figure out what has been fished for, close to each benthic stations....
-   # 2. from catches, compute an efficiency indicator: catch per swept area => a way to identify the effective fisheries and priorities areas...
-   #                                                                         i.e. what we aim for is high catches with low total swept area.
-
-
+ 
     a_year <- "2014"
     load(file=file.path(outPath, a_year, "interpolated", "plus",
                                                 paste("tacsatSweptAreaPlus_", a_year, ".RData", sep="")))
@@ -328,8 +349,7 @@
                                                 paste("AggregatedSweptAreaPlus_", a_year, ".RData", sep=""))) 
 
 
-    # DO the plot ordering cell from large revenue to lower revenue  and plot cumsum
-    
+     
     
     
     
