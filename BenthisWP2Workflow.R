@@ -15,8 +15,6 @@
  outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
  shapePath      <- file.path(myPath, "FisheriesImpactTool", "Shapes")
  dir.create(outPath)
- nameAggFile    <- "ALL_AggregatedSweptArea_12062015.RData"
- load(file=file.path(inPath,nameAggFile)) # get aggResult from e.g. the WP2 BENTHIS workflow
  ctry           <- "DNK"
    
 
@@ -29,7 +27,6 @@
 
 
 
- rm(list=ls())
  library(vmstools)
  library(maps)
  library(mapdata)
@@ -211,20 +208,21 @@ dir.create(file.path(outPath, a_year))
                                           an(remrecsTacsat["total",1]))/an(remrecsTacsat["total",1])*100,2))
 
   # Remove points in harbour 
-  idx             <- pointInHarbour(tacsat$SI_LONG,tacsat$SI_LATI,harbours)
+  idx             <- pointInHarbour(tacsat$SI_LONG,tacsat$SI_LATI, harbours)
   pih             <- tacsat[which(idx == 1),]
-  save(pih,file=paste(outPath, a_year, "pointInHarbour.RData",sep=""))
+  save(pih, file=paste(outPath, a_year, "pointInHarbour.RData",sep=""))
   tacsat          <- tacsat[which(idx == 0),]
   remrecsTacsat["harbour",] <- c(nrow(tacsat),100+round((nrow(tacsat) -
                   an(remrecsTacsat["total",1]))/an(remrecsTacsat["total",1])*100,2))
 
   # Remove points on land
+  data(europa)
   pols                <- lonLat2SpatialPolygons(lst=lapply(as.list(sort(unique(europa$SID))),
                                                 function(x){data.frame(SI_LONG=subset(europa,SID==x)$X,
                                                                        SI_LATI=subset(europa,SID==x)$Y)}))
-  idx                 <- pointOnLand(tacsat,pols)
+  idx                 <- pointOnLand(tacsat, pols)
   pol                 <- tacsat[which(idx == 1),]
-  save(pol,file=file.path(outPath,a_year,"pointOnLand.RData"))
+  save(pol, file=file.path(outPath,a_year,"pointOnLand.RData"))
   tacsat              <- tacsat[which(idx == 0),]
   remrecsTacsat["land",] <- c(nrow(tacsat),100+round((nrow(tacsat) -
                 an(remrecsTacsat["total",1]))/an(remrecsTacsat["total",1])*100,2))
@@ -233,21 +231,21 @@ dir.create(file.path(outPath, a_year))
   save(remrecsTacsat,file=file.path(outPath,a_year,"remrecsTacsat.RData"))
 
   # Save the cleaned tacsat file
-  save(tacsat,file=file.path(outPath,a_year,"cleanTacsat.RData"))
+  save(tacsat, file=file.path(outPath,a_year,"cleanTacsat.RData"))
 
   #-----------------------------------------------------------------------------
   # Cleaning Eflalo
   #-----------------------------------------------------------------------------
 
   # Keep track of removed points
-  remrecsEflalo     <- matrix(NA,nrow=5,ncol=2,dimnames=list(c("total","duplicated","impossible time",
+  remrecsEflalo     <- matrix(NA, nrow=5, ncol=2, dimnames=list(c("total","duplicated","impossible time",
                                                                "before 1st Jan","departArrival"),
                                                              c("rows","percentage")))
-  remrecsEflalo["total",] <- c(nrow(eflalo),"100%")
+  remrecsEflalo["total",] <- c(nrow(eflalo), "100%")
 
   # Remove non-unique trip numbers
-  eflalo            <- eflalo[!duplicated(paste(eflalo$LE_ID,eflalo$LE_CDAT,sep="-")),]
-  remrecsEflalo["duplicated",] <- c(nrow(eflalo),100+round((nrow(eflalo) -
+  eflalo            <- eflalo[!duplicated(paste(eflalo$LE_ID,eflalo$LE_CDAT, sep="-")),]
+  remrecsEflalo["duplicated",] <- c(nrow(eflalo), 100+round((nrow(eflalo) -
                                     an(remrecsEflalo["total",1]))/an(remrecsEflalo["total",1])*100,2))
 
   # Remove impossible time stamp records
@@ -275,14 +273,14 @@ dir.create(file.path(outPath, a_year))
                                 tz="GMT", format="%d/%m/%Y  %H:%M")
   idx               <- which(eflalop$FT_LDATIM >= eflalop$FT_DDATIM)
   eflalo            <- eflalo[idx,]
-  remrecsEflalo["departArrival",] <- c(nrow(eflalo),100+round((nrow(eflalo) -
+  remrecsEflalo["departArrival",] <- c(nrow(eflalo), 100+round((nrow(eflalo) -
                   an(remrecsEflalo["total",1]))/an(remrecsEflalo["total",1])*100,2))
 
   # Save the remrecsEflalo file
-  save(remrecsEflalo,file=file.path(outPath,a_year,"remrecsEflalo.RData"))
+  save(remrecsEflalo,file=file.path(outPath, a_year, "remrecsEflalo.RData"))
 
   # Save the cleaned eflalo file
-  save(eflalo,file=file.path(outPath,a_year,"cleanEflalo.RData"))
+  save(eflalo,file=file.path(outPath, a_year, "cleanEflalo.RData"))
 
   #-----------------------------------------------------------------------------
   # Make gear code selection and calculate effort for each gear
@@ -303,11 +301,13 @@ dir.create(file.path(outPath, a_year))
 
   gc(reset=TRUE)
 
+ 
+  
   #-----------------------------------------------------------------------------
   # Merge eflalo and tacsat
   #-----------------------------------------------------------------------------
 
-  tacsatp               <- mergeEflalo2Tacsat(eflalo,tacsat)
+  tacsatp               <- mergeEflalo2Tacsat2(eflalo, tacsat)
 
   tacsatp$LE_GEAR       <- eflalo$LE_GEAR[match(tacsatp$FT_REF,eflalo$FT_REF)]
   tacsatp$VE_LEN        <- eflalo$VE_LEN[ match(tacsatp$FT_REF,eflalo$FT_REF)]
@@ -315,13 +315,13 @@ dir.create(file.path(outPath, a_year))
   tacsatp$VE_KW         <- eflalo$VE_KW[ match(tacsatp$FT_REF,eflalo$FT_REF)]
   if("LE_WIDTH" %in% colnames(eflalo))
     tacsatp$LE_WIDTH    <- eflalo$LE_WIDTH[ match(tacsatp$FT_REF,eflalo$FT_REF)]
-  save(tacsatp,file=file.path(outPath,a_year,"tacsatMerged.RData"))
+  save(tacsatp,file=file.path(outPath,a_year, "tacsatMerged.RData"))
 
   # Save not merged tacsat data
-  tacsatpmin            <- subset(tacsatp,FT_REF == 0)
+  tacsatpmin            <- subset(tacsatp, FT_REF == 0)
   save(tacsatpmin, file=file.path(outPath,a_year,"tacsatNotMerged.RData"))
 
-  tacsatp               <- subset(tacsatp,FT_REF != 0)
+  tacsatp               <- subset(tacsatp, FT_REF != 0)
   
   
    #-----------------------------------------------------------------------------
@@ -332,111 +332,14 @@ dir.create(file.path(outPath, a_year))
    tacsatp$LE_MET_init    <- tacsatp$LE_MET
    tacsatp$LE_MET         <- factor(tacsatp$LE_MET)            
    print(levels(tacsatp$LE_MET))
-     if(a_year=="2005"){
-     levels(tacsatp$LE_MET) <-   c(  ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!!
-     "DRB_MOL", "OT_DMF", "NA", "OT_CRU",  "OT_CRU",  "OT_CRU", "OT_CRU",  "OT_CRU", "OT_CRU",  "OT_CRU",
-     "OT_MIX_DMF_PEL", "OT_DMF", "OT_DMF", "OT_DMF", "OT_MIX_DMF_PEL",   "OT_MIX_DMF_PEL",  "OT_DMF", "OT_DMF",  "OT_DMF", "OT_DMF", 
-     "OT_SPF",  "OT_SPF",  "OT_SPF",  "OT_SPF",  "OT_SPF",  "OT_CRU",  "OT_MIX_DMF_PEL",  "OT_DMF", "OT_DMF", "OT_DMF",
-     "OT_MIX_DMF_PEL",  "OT_DMF", "OT_SPF",  "OT_SPF",  "OT_SPF", "OT_SPF",  "OT_SPF",   "SDN_DEM", "SDN_DEM",  "SDN_DEM",
-     "SDN_DEM",  "SSC_DEM",   "SSC_DEM","SSC_DEM",   "TBB_CRU",   "TBB_DMF", "TBB_DMF")  
-   } else{ 
-      if(a_year=="2006"){
-     levels(tacsatp$LE_MET) <-   c(  ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!!
-      "DRB_MOL", "NA",  "OT_CRU", "OT_CRU",    "OT_CRU", "OT_CRU", "OT_CRU","OT_CRU","OT_CRU",  "OT_CRU", 
-      "OT_MIX_DMF_PEL",     "OT_DMF", "OT_DMF",   "OT_DMF", "OT_MIX_DMF_PEL", "OT_MIX_DMF_PEL",  "OT_DMF","OT_DMF", "OT_DMF", "OT_DMF", 
-      "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF",  "OT_CRU",  "OT_CRU", "OT_MIX_DMF_PEL", "OT_DMF",
-      "OT_DMF", "OT_DMF", "OT_MIX_DMF_PEL", "OT_MIX_DMF_PEL",  "OT_DMF",  "OT_SPF","OT_SPF","OT_SPF", "OT_SPF", "OT_SPF",  
-      "OT_SPF",  "SDN_DEM", "SDN_DEM", "SDN_DEM", "SDN_DEM",  "SSC_DEM", "SSC_DEM", "SSC_DEM", "SSC_DEM", "SSC_DEM", 
-      "TBB_CRU",   "TBB_DMF",   "TBB_DMF", "TBB_DMF")  
-
-   } else{ 
-   if(a_year=="2007"){
-     levels(tacsatp$LE_MET) <-   c(  ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!!
-     "DRB_MOL", "NA", "OT_CRU", "OT_CRU", "OT_CRU", "OT_CRU","OT_CRU","OT_CRU",  "OT_MIX_DMF_PEL",  "OT_DMF",
-     "OT_DMF",   "OT_DMF", "OT_MIX_DMF_PEL",   "OT_MIX_DMF_PEL",   "OT_DMF",   "OT_DMF",  "OT_DMF",  "OT_SPF", "OT_SPF", "OT_SPF", 
-     "OT_SPF",   "OT_SPF", "OT_CRU",  "OT_MIX_DMF_PEL", "OT_DMF",  "OT_DMF",  "OT_MIX_DMF_PEL",   "OT_DMF",   "OT_DMF",   "OT_DMF",
-     "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF",   "SDN_DEM",  "SDN_DEM",  "SDN_DEM",  "SDN_DEM",   "SSC_DEM", "SSC_DEM",  
-     "SSC_DEM", "SSC_DEM", "SSC_DEM",  "TBB_CRU",   "TBB_DMF", "TBB_DMF")  
-
-   } else{ 
-   if(a_year=="2008"){
-     levels(tacsatp$LE_MET) <-   c(  ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!!
-     "DRB_MOL", "OT_DMF", "NA", "OT_CRU", "OT_CRU", "OT_CRU", "OT_CRU", "OT_CRU", "OT_CRU",  "OT_MIX_DMF_PEL",    
-     "OT_DMF", "OT_DMF", "OT_DMF", "OT_MIX_DMF_PEL", "OT_MIX_DMF_PEL", "OT_DMF", "OT_DMF",  "OT_DMF", "OT_DMF",  "OT_SPF",  
-     "OT_SPF", "OT_SPF", "OT_SPF",  "OT_CRU",  "OT_MIX_DMF_PEL", "OT_DMF", "OT_DMF", "OT_DMF", "OT_DMF",  "OT_SPF", 
-     "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", "SDN_DEM", "SDN_DEM", "SDN_DEM","SDN_DEM",  "SSC_DEM", "SSC_DEM",  
-     "SSC_DEM", "SSC_DEM",  "TBB_CRU",  "TBB_DMF")
-   tacsatp$LE_MET         <- as.character(tacsatp$LE_MET)
-   } else{ 
-   if(a_year=="2009"){
-     levels(tacsatp$LE_MET) <-   c(  ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!!
-     "DRB_MOL", "NA", "OT_CRU", "OT_CRU", "OT_CRU", "OT_CRU", "OT_CRU", "OT_CRU", "OT_MIX_DMF_PEL", "OT_DMF", "OT_DMF",
-     "OT_DMF", "OT_MIX_DMF_PEL", "OT_MIX_DMF_PEL", "OT_DMF", "OT_DMF", "OTB_DMF", "OT_SPF", "OT_SPF", "OT_SPF", 
-     "OT_SPF", "OT_SPF", "OT_CRU", "OT_MIX_DMF_PEL", "OT_DMF", "OT_DMF", "OT_MIX_DMF_PEL", "OT_DMF", "OT_SPF", "OT_SPF", 
-     "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", "SDN_DEM", "SDN_DEM", "SDN_DEM", "SDN_DEM",  "SSC_DEM", "SSC_DEM",  
-     "SSC_DEM", "SSC_DEM", "TBB_CRU", "TBB_DMF")  
-   tacsatp$LE_MET         <- as.character(tacsatp$LE_MET)
-   } else{
-   if(a_year=="2010"){
-     levels(tacsatp$LE_MET) <-   c(  ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!!
-     "DRB_MOL", "NA",  "OT_CRU","OT_CRU", "OT_CRU",   "OT_CRU",  "OT_CRU",  
-     "OT_CRU",  "OT_MIX_DMF_PEL",     "OT_DMF", "OT_DMF", "OT_DMF",   "OT_DMF", "OT_MIX_DMF_PEL",  
-     "OT_MIX_DMF_PEL",   "OT_DMF",  "OT_DMF",   "OT_DMF",  "OT_DMF",  "OT_SPF",  "OT_SPF",  
-     "OT_SPF",  "OT_SPF",   "OT_SPF",   "OT_MIX_DMF_PEL",   "OT_CRU",  "OT_MIX_DMF_PEL",     "OT_DMF",
-     "OT_DMF",   "OT_DMF",  "OT_SPF",   "OT_SPF",  "OT_SPF",   "OT_SPF",   "SDN_DEM",
-     "SDN_DEM",   "SDN_DEM", "SDN_DEM",  "SSC_DEM",   "SSC_DEM",  "TBB_CRU",   "TBB_DMF")  
-   tacsatp$LE_MET         <- as.character(tacsatp$LE_MET)
-   } else{
-    if(a_year=="2011"){
-     levels(tacsatp$LE_MET) <-   c(  ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!!
-      "DRB_MOL",      "NA",   "OT_CRU", "OT_CRU",   "OT_CRU",  "OT_MIX_DMF_PEL", "OT_DMF", "OT_MIX_DMF_PEL",  
-      "OT_MIX_DMF_PEL",   "OT_DMF",  "OT_MIX_NEP",   "OT_MIX_NEP", "OT_MIX_NEP",   "OT_MIX_NEP",  "OT_SPF",  "OT_SPF",  
-      "OT_SPF",   "OT_MIX_DMF_PEL",   "OT_SPF",   "OT_CRU",  "OT_MIX_DMF_PEL",     "OT_DMF", "OT_MIX_DMF_PEL",   "OT_MIX_NEP",  
-      "OT_MIX_NEP",  "OT_SPF",   "OT_SPF",  "OT_SPF",   "OT_SPF",   "SDN_DEM", "SDN_DEM",   "SDN_DEM",
-      "SDN_DEM",  "SSC_DEM", "SSC_DEM",   "TBB_CRU",   "TBB_DMF",     "TBB_DMF")  
-   
-    }else{
-     if(a_year=="2012") {
-       levels(tacsatp$LE_MET) <-   c("DRB_MOL", "NA", "OT_CRU", "OT_CRU", "OT_CRU",  "OT_DMF", "OT_DMF", "OT_MIX_DMF_PEL",
-        "OT_MIX_DMF_PEL", "OT_DMF", "OT_MIX_NEP", "OT_MIX_NEP",  "OT_MIX_NEP", "OT_MIX_NEP",
-        "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", "OT_MIX_DMF_PEL", "OT_DMF", "OT_MIX_NEP",
-        "OT_MIX_NEP",  "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", 
-        "SDN_DEM", "SDN_DEM",   "SDN_DEM", "SDN_DEM", "SSC_DEM", "SSC_DEM", "TBB_CRU", "TBB_DMF")
-    } else{
-      if(a_year=="2013") {
-       levels(tacsatp$LE_MET) <-   c(
-        "DRB_MOL","NA", "OT_CRU", "OT_CRU",
-        "OT_CRU", "OT_DMF" ,"OT_DMF","OT_MIX_DMF_PEL",  
-        "OT_MIX_DMF_PEL", "OT_DMF", "OT_MIX_NEP","OT_MIX_NEP","OT_MIX_NEP", "OT_MIX_NEP",
-        "OT_SPF","OT_SPF" , "OT_SPF",   "OT_MIX_DMF_PEL",     "OT_SPF",   "OT_MIX_DMF_PEL",    
-        "OT_DMF", "OT_MIX_DMF_PEL",   "OT_MIX_NEP",   "OT_SPF",
-        "OT_SPF",   "OT_SPF",  "OT_MIX_DMF_PEL",   "OT_SPF",   "OT_SPF",  
-        "SDN_DEM", "SDN_DEM",   "SDN_DEM",
-        "SDN_DEM",  "SSC_DEM", "SSC_DEM",   "TBB_CRU",   "TBB_DMF")  
-     
-    } else{ 
-      if(a_year=="2014"){
-        levels (tacsatp$LE_MET) <- c(
-          "DRB_MOL", "NA", "OT_CRU", "OT_CRU", "OT_DMF_PEL",  "OT_DMF",  "OT_DMF_PEL", "OT_DMF_PEL", "OT_DMF", "OT_DMF", 
-          "OT_MIX_NEP", "OT_MIX_NEP", "OT_MIX_NEP", "OT_MIX_NEP", "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF",   "OT_DMF_PEL",    
-          "OT_DMF", "OT_DMF_PEL", "OT_MIX_NEP", "OT_SPF", "OT_SPF", "SDN_DEM", "SDN_DEM", "SDN_DEM", "SDN_DEM",  "SSC_DEM", "TBB_CRU" )
-      
-      } else{
-      if(a_year=="2015"){
-        levels (tacsatp$LE_MET) <- c(
-          "DRB_MOL", "NA", "OT_CRU", "OT_CRU", "OT_DMF_PEL",  "OT_DMF",  "OT_DMF_PEL", "OT_DMF_PEL", "OT_DMF", "OT_DMF", 
-          "OT_MIX_NEP", "OT_MIX_NEP", "OT_MIX_NEP", "OT_MIX_NEP", "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF", "OT_SPF",   "OT_DMF_PEL",    
-          "OT_DMF", "OT_SPF", "OT_SPF", "OT_DMF_PEL", "OT_DMF_PEL", "OT_SPF", "SDN_DEM", "SDN_DEM", "SDN_DEM", "SDN_DEM",  "SSC_DEM", "SSC_DEM", "TBB_CRU",  "TBB_DMF" )
-      
-      } else{
-    stop('adapt the BENTHIS metiers for this year')
+     if(a_year=="2015"){
+      ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!! And should be in agreement with table for gears BENTHIS params
+      levels(tacsatp$LE_MET) <-   c( "OT_DMF", "OT_MIX_DMF_PEL")  
     }
-   }
-  }}}}}}}}
-  }
-  initVersusBenthisMetiers <-  tacsatp [!duplicated(data.frame(tacsatp$LE_MET_init, tacsatp$LE_MET)), 
+    
+   initVersusBenthisMetiers <-  tacsatp [!duplicated(data.frame(tacsatp$LE_MET_init, tacsatp$LE_MET)), 
                                     c('LE_MET_init', 'LE_MET')]
-  save(initVersusBenthisMetiers, file=file.path(outPath,a_year,"initVersusBenthisMetiers.RData"))
+   save(initVersusBenthisMetiers, file=file.path(outPath, a_year, "initVersusBenthisMetiers.RData"))
 
  }
 
