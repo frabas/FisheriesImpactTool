@@ -307,7 +307,7 @@ dir.create(file.path(outPath, a_year))
   # Merge eflalo and tacsat
   #-----------------------------------------------------------------------------
 
-  tacsatp               <- mergeEflalo2Tacsat2(eflalo, tacsat)
+  tacsatp               <- mergeEflalo2Tacsat(eflalo, tacsat)
 
   tacsatp$LE_GEAR       <- eflalo$LE_GEAR[match(tacsatp$FT_REF,eflalo$FT_REF)]
   tacsatp$VE_LEN        <- eflalo$VE_LEN[ match(tacsatp$FT_REF,eflalo$FT_REF)]
@@ -334,7 +334,7 @@ dir.create(file.path(outPath, a_year))
    print(levels(tacsatp$LE_MET))
      if(a_year=="2015"){
       ## REPLACE LEVELS WITH CAUTION ## adapt to your own list!! And should be in agreement with table for gears BENTHIS params
-      levels(tacsatp$LE_MET) <-   c( "OT_DMF", "OT_MIX_DMF_PEL")  
+      levels(tacsatp$LE_MET) <-   c( "OT_SPF", "OT_MIX_DMF_PEL", "OT_SPF")  
     }
     
    initVersusBenthisMetiers <-  tacsatp [!duplicated(data.frame(tacsatp$LE_MET_init, tacsatp$LE_MET)), 
@@ -360,7 +360,7 @@ dir.create(file.path(outPath, a_year))
     storeScheme       <- storeScheme[storeScheme$years==a_year,]
     save(storeScheme, file=file.path(outPath,a_year,"storeScheme.RData"))
   }  else{
-    load(file.path(outPath,a_year,"storeScheme.RData"))
+    load(file.path(dataPath,a_year,"storeScheme.RData"))
     storeScheme$years <- a_year  
   }
 
@@ -396,7 +396,7 @@ dir.create(file.path(outPath, a_year))
   #-----------------------------------------------------------------------------
   # Interpolation (of fishing sequences only)
   #-----------------------------------------------------------------------------
-  dir.create(file.path(outPath,a_year,"interpolated"))
+  dir.create(file.path(outPath, a_year, "interpolated"))
   tacsatp           <- orderBy(~VE_REF+SI_DATIM,data=tacsatp)
 
   # KEEP ONLY fish. seq. bounded by steaming points
@@ -579,24 +579,24 @@ save(tacsatSweptArea, file=file.path(outPath,a_year, paste("tacsatSweptArea.RDat
 # (TO BE DELIVERED BY EACH PARTNER TO THE WP2 COORDINATOR)
 #-----------------------------------------------------------------------------
 
+if(FALSE){
 # once you have your three years ready....
-outPath   <- "C:/BENTHIS/outputs/"  # PLEASE ADAPT.
-
 library(vmstools)
 
-#- Combine tacsatSweptArea files from 2010-2012
-for(iYr in 2010:2012){
-#- read data for this year
-load(file.path(outPath, iYr, "tacsatSweptArea.RData"))
+#- Combine tacsatSweptArea files e.g. from 2010-2012
+for(iYr in years){
+   #- read data for this year
+   load(file.path(outPath, iYr, "tacsatSweptArea.RData"))
 
-#- collate
-if(iYr == 2010) tacsatSweptAreaTot <- cbind(tacsatSweptArea,SI_YEAR=iYr)
-if(iYr != 2010) tacsatSweptAreaTot <- rbind(tacsatSweptAreaTot,cbind(tacsatSweptArea,SI_YEAR=iYr))
-}
+   #- collate
+   if(iYr == years[1]) tacsatSweptAreaTot <- cbind(tacsatSweptArea,SI_YEAR=iYr)
+  if(iYr != years[1]) tacsatSweptAreaTot <- rbind(tacsatSweptAreaTot,cbind(tacsatSweptArea,SI_YEAR=iYr))
+  }
 tacsatSweptArea <- tacsatSweptAreaTot; rm(tacsatSweptAreaTot)
 
 #- add months and days
 tacsatSweptArea$SI_DATE <- as.POSIXct(paste(tacsatSweptArea$SI_DATE,    sep=" "), tz="GMT", format="%d/%m/%Y")
+tacsatSweptArea$YEAR    <- format(tacsatSweptArea$SI_DATE, "%Y") 
 tacsatSweptArea$MONTH   <- format(tacsatSweptArea$SI_DATE, "%m") 
 tacsatSweptArea$DAY     <- format(tacsatSweptArea$SI_DATE, "%j")  
 
@@ -617,39 +617,38 @@ xrange[1] <- floor(xrange[1]); xrange[2] <- ceiling(xrange[2])
 yrange[1] <- floor(yrange[1]); yrange[2] <- ceiling(yrange[2])
 }
 
-#- Set grid
+# set a grid
 resx <- 1/60 #1 minute
 resy <- 1/60 #1 minute
-grd <- createGrid(xrange,yrange,resx=1/60,resy=1/60,type="SpatialGrid",exactBorder=T)
+grd  <- createGrid(xrange,yrange,resx=1/60,resy=1/60,type="SpatialGrid",exactBorder=T)
 
-#- Grid all tacsatSweptArea data
+# grid all tacsatSweptArea data
 # Convert all tacsat poins first to SpatialPoints
-coords <- SpatialPoints(cbind(SI_LONG=tacsatSweptArea$SI_LONG,SI_LATI=tacsatSweptArea$SI_LATI))
-idx <- over(coords,grd)
+coords               <- SpatialPoints(cbind(SI_LONG= tacsatSweptArea$SI_LONG, SI_LATI= tacsatSweptArea$SI_LATI))
+idx                  <- over(coords,grd)
 tacsatSweptArea$grID <- idx
 
-#- Remove records that are not in the study area
+# remove records that are not in the study area
 tacsatSweptArea <- subset(tacsatSweptArea,is.na(grID)==F)
 
-#-1 Aggregate the results by metier and grid ID (aggregate() can be slow: be patient)
-aggTacsatSweptArea <- aggregate(tacsatSweptArea[,c("SWEPT_AREA_KM2",
-"SWEPT_AREA_KM2_LOWER",
-"SWEPT_AREA_KM2_UPPER")],
-by=list(tacsatSweptArea$LE_MET,tacsatSweptArea$grID,tacsatSweptArea$SI_YEAR),sum,na.rm=T)
+# aggregate the results by metier and grid ID (aggregate() can be slow: be patient)
+aggTacsatSweptArea <- aggregate(tacsatSweptArea[,c("SWEPT_AREA_KM2","SWEPT_AREA_KM2_LOWER","SWEPT_AREA_KM2_UPPER")],
+                                by=list(tacsatSweptArea$LE_MET,tacsatSweptArea$grID, tacsatSweptArea$YEAR),sum,na.rm=T)
 colnames(aggTacsatSweptArea)[1:3] <- c("LE_MET","grID", "Year")
 
-#- Add midpoint of gridcell to dataset
-aggResult <- cbind(aggTacsatSweptArea,CELL_LONG=coordinates(grd)[aggTacsatSweptArea$grID,1],
-CELL_LATI=coordinates(grd)[aggTacsatSweptArea$grID,2])
-save(aggResult,file=file.path(outPath,"AggregatedSweptArea.RData"))
+# add midpoint of gridcell to dataset
+aggResult <- cbind(aggTacsatSweptArea, CELL_LONG=coordinates(grd)[aggTacsatSweptArea$grID,1],
+                                       CELL_LATI=coordinates(grd)[aggTacsatSweptArea$grID,2]
+                                       )
+save(aggResult,file=file.path(outPath, "AggregatedSweptArea.RData"))
 
+} # end FALSE
 
  
 
 
 
 
-} # end FALSE
 
 
 
