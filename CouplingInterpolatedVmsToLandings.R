@@ -14,8 +14,6 @@
  outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
  shapePath      <- file.path(myPath, "FisheriesImpactTool", "Shapes")
  dir.create(outPath)
- nameAggFile    <- "ALL_AggregatedSweptArea_12062015.RData"
- load(file=file.path(inPath,nameAggFile)) # get aggResult from e.g. the WP2 BENTHIS workflow
  ctry           <- "DNK"
    
 
@@ -69,16 +67,14 @@
 
          tacsatIntGearVEREF      <- splitAmongPings(tacsat=subset(tacsatIntGearVEREF, LE_GEAR == a_gear & VE_REF == a_vid),
                                               eflalo=subset(eflalo, LE_GEAR == a_gear & VE_REF == a_vid),
-                                              variable="all",level="day",conserve=T)
+                                              variable="all", level="day", conserve=T)
                                           # note that we can safely ignore the warning as it corresponds to the 0 catch
                                           # this is because sometimes the declaration of rectangle (in eflalo) does not match the rectangle from VMS points
 
          # check e.g. for cod
-         plotTools(tacsatIntGearVEREF, level="gridcell", xlim=c(-56,25),ylim=c(45,75), zlim=NULL, log=F, gridcell=c(0.1,0.05), color=NULL, control.tacsat=list(clm="LE_KG_COD"))
-         #savePlot(file.path(outPath, a_year, "interpolated", "plus", paste("tacsatSweptAreaPlus_",a_vid, "_", a_gear, "_COD.jpeg", sep="")), type="jpeg")
-         plotTools(subset(eflalo, LE_GEAR == a_gear & VE_REF == a_vid), level="ICESrectangle", xlim=c(-56,25), ylim=c(45,65), zlim=NULL,log=F, color=NULL,control.eflalo=list(clm="LE_KG_COD"))
-         #savePlot(file.path(outPath, a_year, "interpolated", "plus", paste("tacsatSweptAreaPlus_",a_vid, "_", a_gear, "_COD_EFLALO.jpeg", sep="")), type="jpeg")
-
+         plotTools(tacsatIntGearVEREF, level="gridcell", xlim=c(5,25), ylim=c(52,65), zlim=NULL, log=F, gridcell=c(0.1,0.05), color=NULL, control.tacsat=list(clm="LE_KG_COD"))
+         plotTools(subset(eflalo, LE_GEAR == a_gear & VE_REF == a_vid), level="ICESrectangle", xlim=c(5,25), ylim=c(52,65), zlim=NULL,log=F, color=NULL,control.eflalo=list(clm="LE_KG_COD"))
+    
 
          save(tacsatIntGearVEREF, file=file.path(dataPath, a_year, "interpolated", "plus",
                                                 paste("tacsatSweptAreaPlus_",a_vid, "_", a_gear, ".RData", sep="")),compress=T)
@@ -195,12 +191,8 @@
   )
 
 
-       #- PER YEAR
-  library(vmstools)
-   dataPath  <- "C:/BENTHIS/EflaloAndTacsat/"
-   outPath   <- "C:/BENTHIS/outputs/"
-
-    
+  # calls PER YEAR
+      
   # Gear codes to keep (with assumed severe bottom impact)
   gears2keep            <- c("TBB","OTT","OTB","SSC","SDN","PTB","DRB")
   towedGears            <- c("TBB","OTT","OTB","PTB","DRB")
@@ -215,13 +207,13 @@
 
    cols2keep <- c("VE_REF", "VE_LEN", "VE_KW", "SI_LATI","SI_LONG","SI_DATE", "SI_DATIM", "LE_GEAR","LE_MET","SWEPT_AREA_KM2","SWEPT_AREA_KM2_LOWER","SWEPT_AREA_KM2_UPPER")
 
-   for (a_year in c(2013:2014)){
+   for (a_year in years){
     cat(paste(a_year, "\n"))
 
-    fls <- dir(file.path(outPath,a_year,"interpolated", "plus"))
+    fls <- dir(file.path(dataPath, a_year,"interpolated", "plus"))
     fls <- fls[grep('.RData', fls)]
 
-    load(file.path(outPath,a_year,"interpolated", "plus", fls[2])) # get one as an example for the right columns
+    load(file.path(dataPath,a_year,"interpolated", "plus", fls[1])) # get one as an example for the right columns
 
     colkg <- colnames(tacsatIntGearVEREF) [ grep('KG', colnames(tacsatIntGearVEREF)) ]
     coleuro <- colnames(tacsatIntGearVEREF) [grep('EURO', colnames(tacsatIntGearVEREF))]
@@ -240,11 +232,11 @@
     for(iFile in fls){
      cat(paste(iFile, "\n"))
      count <- count+1
-     load(file.path(outPath,a_year,"interpolated", "plus", iFile))
+     load(file.path(dataPath, a_year, "interpolated", "plus", iFile))
 
 
 
-     tacsatIntGearVEREF$LE_KG_OTH <- apply(tacsatIntGearVEREF[,colkg_to_sum], 1, sum, na.rm=TRUE)
+     tacsatIntGearVEREF$LE_KG_OTH   <- apply(tacsatIntGearVEREF[,colkg_to_sum], 1, sum, na.rm=TRUE)
      tacsatIntGearVEREF$LE_EURO_OTH <- apply(tacsatIntGearVEREF[,coleuro_to_sum], 1, sum, na.rm=TRUE)
 
      # compute the swept area
@@ -263,7 +255,7 @@
 
      }
    tacsatSweptArea   <- do.call(rbind, lst)
-   save(tacsatSweptArea, file=file.path(outPath, a_year, "interpolated", "plus",
+   save(tacsatSweptArea, file=file.path(dataPath, a_year, "interpolated", "plus",
                                                 paste("tacsatSweptAreaPlus_", a_year, ".RData", sep="")),compress=T)
    } # end year
 
@@ -279,23 +271,26 @@
    #---------------------------------------------------
    #---------------------------------------------------
    #---------------------------------------------------
+   # Gridding for a given year
  
-    a_year <- "2014"
-    load(file=file.path(outPath, a_year, "interpolated", "plus",
+    for (a_year in years){
+      cat(paste(a_year, "\n"))
+    
+    load(file=file.path(dataPath, a_year, "interpolated", "plus",
                                                 paste("tacsatSweptAreaPlus_", a_year, ".RData", sep="")))
  
     library(vmstools)
     xrange  <- c(-30,50) # ALL
-    yrange  <- c(30,81) # ALL
+    yrange  <- c(30,81)  # ALL
  
     #- Set grid
     resx    <- 1/60 #1 minute
     resy    <- 1/60 #1 minute
-    grd     <- createGrid(xrange,yrange,resx=1/60,resy=1/60,type="SpatialGrid",exactBorder=T)
+    grd     <- createGrid(xrange, yrange, resx=resx, resy=resy, type="SpatialGrid", exactBorder=T)
 
     #- Grid all tacsatSweptArea data
     # Convert all tacsat poins first to SpatialPoints
-    coords <- SpatialPoints(cbind(SI_LONG=tacsatSweptArea$SI_LONG,SI_LATI=tacsatSweptArea$SI_LATI))
+    coords <- SpatialPoints(cbind(SI_LONG=tacsatSweptArea$SI_LONG, SI_LATI=tacsatSweptArea$SI_LATI))
     idx <- over(coords,grd)
     tacsatSweptArea$grID <- idx
 
@@ -329,26 +324,26 @@
     nm <- names(tacsatSweptArea)
     idx.col.euro   <- grep('LE_EURO_', nm)
     idx.col.kg     <- grep('LE_KG_', nm)
-    idx.col <- c(idx.col.euro, idx.col.kg)
-    DT  <- data.table(tacsatSweptArea) # library data.table for fast grouping replacing aggregate()
-    # AGGREGATE PER SPECIES -----> SUM (IF WEIGHT) OR MEAN (IF CPUE)
-    eq1  <- c.listquote( paste ("sum(",nm[idx.col],",na.rm=TRUE)",sep="") )
-    tacsatSweptArea.agg <- DT[,eval(eq1),by=list(grID)]
-    tacsatSweptArea.agg <- data.frame( tacsatSweptArea.agg)
-    colnames(tacsatSweptArea.agg) <- c("grID",  nm[idx.col.euro], nm[idx.col.kg])
+    idx.col        <- c(idx.col.euro, idx.col.kg)
+    DT             <- data.table(tacsatSweptArea) # library data.table for fast grouping replacing aggregate()
+    # AGGREGATE PER SPECIES -----> SUM (IF WEIGHT) 
+    eq1                           <- c.listquote( paste ("sum(",nm[idx.col],",na.rm=TRUE)",sep="") )
+    tacsatSweptArea_agg           <- DT[,eval(eq1), by=list(grID)]
+    tacsatSweptArea_agg           <- data.frame(tacsatSweptArea_agg)
+    colnames(tacsatSweptArea_agg) <- c("grID",  nm[idx.col.euro], nm[idx.col.kg])
 
     
-     #- Add midpoint of gridcell to dataset
-     aggResult <- cbind(tacsatSweptArea.agg,CELL_LONG=coordinates(grd)[tacsatSweptArea.agg$grID,1],
-                        CELL_LATI=coordinates(grd)[tacsatSweptArea.agg$grID,2])
+    # add midpoint of gridcell to dataset
+    aggResult <- cbind(tacsatSweptArea_agg, CELL_LONG=coordinates(grd)[tacsatSweptArea_agg$grID,1],
+                        CELL_LATI=coordinates(grd)[tacsatSweptArea_agg$grID,2])
 
-     #- Remove records that are not in the study area 
-     aggResult       <- subset(aggResult,is.na(grID)==F)
+    # remove records that are not in the study area 
+    aggResult       <- subset(aggResult,is.na(grID)==F)
 
-     save(aggResult,file=file.path(outPath, a_year, "interpolated", "plus",
+    save(aggResult, file=file.path(dataPath, a_year, "interpolated", "plus",
                                                 paste("AggregatedSweptAreaPlus_", a_year, ".RData", sep=""))) 
 
-
+    } # end a_year
      
     
     
