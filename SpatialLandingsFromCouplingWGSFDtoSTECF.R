@@ -11,7 +11,7 @@
  myPath         <- file.path("C:", "Users", "fbas", "Documents", "GitHub")
  dataPath       <- file.path(myPath, "FisheriesImpactTool", "Data")
  outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
- raster_res     <- c(0.0167,0.0167) # 1 by 1 minute
+ raster_res     <- c(0.08333333,0.08333333) # 5 by 5 minute
  nameAggFile    <- "ALL_AggregatedSweptArea_12062015.RData"
  load(file=file.path(dataPath, nameAggFile)) # get aggResult
 #--------------------------------
@@ -217,8 +217,8 @@ vmsp                    <- merge(vms, sum_effort, by.x="year_rectangle", by.y="y
 vmsp$share_effort       <- vmsp$fishing_ho / vmsp$tot_effort # for dispatching depending on the contribution of that cell to the total effort in that cell
 
 
-vmspp                    <- merge(vmsp, stecf[,c("year_rectangle", "species", "values", "measure")], by.x="year_Rectangle", by.y="year_Rectangle")
-vmspp$landings_from_cell <- vmspp$Values * vmspp$share_effort  # dispatch on cell per species
+vmspp                    <- merge(vmsp, stecf[,c("year_rectangle", "species", "values", "measure")], by.x="year_rectangle", by.y="year_rectangle")
+vmspp$landings_from_cell <- vmspp$values * vmspp$share_effort  # dispatch on cell per species
 
 
 #----------------
@@ -235,12 +235,13 @@ if(!is_all_gears){
 #----------------
 resy <-  diff(unique(vmspp$mid_lat)[order(unique(vmspp$mid_lat))])  [1]
 resx <-  diff(unique(vmspp$mid_lon)[order(unique(vmspp$mid_lon))])  [1]
-cutbreakval            <- c(-1,0,20,40,80,160,320,3000000)
+cutbreakval            <- c(-1,0,20,40,80,160,320,3000000)  # kilos
+colyellowred           <- terrain.colors(length(cutbreakval))
 
-a_species <- "HER"
-cols                   <- c("white",colyellowred)[cut(vmspp[vmspp$Species==a_species, "landings_from_cell"],breaks=cutbreakval)]
+a_species              <- "HER"
+cols                   <- c("white", colyellowred)[cut(vmspp[vmspp$species==a_species, "landings_from_cell"]*1000, breaks=cutbreakval)]
+coord                  <- vmspp[vmspp$species==a_species, c("mid_lon", "mid_lat")]
 plot(coord, pch="")
-coord <- vmspp[vmspp$Species==a_species, c("mid_lon", "mid_lat")]
 for (i in 1: nrow(coord)) rect(coord[i, "mid_lon"]-resx/2, coord[i,"mid_lat"]-resy/2, coord[i,"mid_lon"]+resx/2, coord[i,"mid_lat"]+resy/2, col=cols[i], border=FALSE)
 
 
@@ -249,8 +250,8 @@ for (i in 1: nrow(coord)) rect(coord[i, "mid_lon"]-resx/2, coord[i,"mid_lat"]-re
 #----------------
 
  # subset for species
- for (a_species in unique(vmspp$Species)){ 
-    vmspp_this <-  vmspp[vmspp$Species==a_species, ]
+ for (a_species in unique(vmspp$species)){ 
+    vmspp_this <-  vmspp[vmspp$species==a_species, ]
 
     # then, rasterize
     library(raster)
@@ -259,7 +260,7 @@ for (i in 1: nrow(coord)) rect(coord[i, "mid_lon"]-resx/2, coord[i,"mid_lat"]-re
 
     r           <- raster(xmn=xrange[1], xmx=xrange[2], ymn=yrange[1], ymx=yrange[2], res=raster_res, crs=CRS("+proj=longlat +datum=WGS84"))
     some_coords <- SpatialPoints(cbind(SI_LONG=vmspp_this$mid_lon, SI_LATI=vmspp_this$mid_lat))
-    rstr        <- rasterize(x=some_coords, y=r, field=vmspp_this$landings_from_cell, fun="sum")  # divided by nb of years to obtain an annual average fishing intensity
+    rstr        <- rasterize(x=some_coords, y=r, field=vmspp_this$landings_from_cell*1000, fun="sum")  # converted in kilo
     plot(rstr, xlim=c(-5,13), ylim=c(53,60))
     library(rgdal)
     rstr_eea     <- projectRaster(rstr, crs="+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs")  # European EEA projection

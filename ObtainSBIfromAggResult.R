@@ -36,7 +36,7 @@ uniqueTot <- aggResultTot2[!duplicated(aggResultTot2$lgrID),c("lgrID","CELL_LONG
 aggResult <- merge(aggTot,uniqueTot,by="lgrID",all=T)
 aggResult[,c(grep("SURF_SWEPT_AREA",colnames(aggResult)))] <- aggResult[,c(grep("SURF_SWEPT_AREA",colnames(aggResult)))]/100
 
-#data from V. Denderen et al.:
+#data from V. Denderen et al. (caution: estimates obtained from fitting on North Sea data...best available data so far):
 cumbio    <- as.data.frame(rbind( c("A5.1",-4.774150,2.645160,0.05268523),
                                   c("A5.2",-7.685695,4.424618,0.05268523),
                                   c("A5.3",-5.728134,4.151049,0.05268523),
