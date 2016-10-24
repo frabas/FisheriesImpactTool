@@ -3,21 +3,55 @@
  ## Workflow of WGSFD 2015 to process VMS data from ICES data call
  ## Author: Niels Hintzen, Francois Bastardie, Josephine Egekvist (DTU-Aqua) 
  ## and the ICES WGSFD 2015 members
+ ##
+ ## ALSO LOOK AT https://github.com/ices-eg/VMS-datacall
+ ##
  ##----------------------------------------------------------------------------##
  ##----------------------------------------------------------------------------##
 
+
+ # GENERAL SETTINGS---------------
+ myPath         <- file.path("C:", "Users", "fbas", "Documents", "GitHub")  # to adapt to your own path.
+ dataPath       <- file.path(myPath, "FisheriesImpactTool", "Data")
+ outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
+ shapePath      <- file.path(myPath, "FisheriesImpactTool", "Shapes")
+ dir.create(outPath)
+ ctry           <- "DNK"
+   
+
+ # subset for a year period
+ years     <- 2015
+ lat_range <- c(53,60)
+ lon_range <- c(-5,13)
+ raster_res<- c(0.0167,0.0167) # 1 by 1 minute
+ #--------------------------------
 
 #- Workflow of WGSFD 2015
 
-rm(list=ls())
-memory.limit(size=40000)
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!   IMPORTANT NOTE     #!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+# this worflow is no longer used for obtaining the ICES VMS database,
+# it has been replaced by a SAS routine for WGSFD 2016 (written by Carlos Pinto)
+# to make it consistent with the ICES data treatment centered on SAS. 
+# therefore the below R code is deprecated and only given for info
+# ....also not working given input data are not provided as there are confidential.
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##!##
+
+
 
 library(vmstools)
 
-
-dataPath    <- "~/WGSFD/data"
-outPath     <- "~/WGSFD/output"
-codePath    <- "~/WGSFD/R"
 
 #-------------------------------------------------------------------------------
 #- Read in the raw WGSFD data table 1 only
@@ -46,7 +80,7 @@ metiers_DCF_BENTHIS_lookup$JNCC_grouping    <- ac(metiers_DCF_BENTHIS_lookup$JNC
 metiers_DCF_BENTHIS_lookup$Fishing_category <- ac(metiers_DCF_BENTHIS_lookup$Fishing_category)
 metiers_DCF_BENTHIS_lookup$LE_MET_level6    <- ac(metiers_DCF_BENTHIS_lookup$LE_MET_level6)
 metiers_DCF_BENTHIS_lookup$Metier_level4    <- ac(metiers_DCF_BENTHIS_lookup$Metier_level4)
-metiers_DCF_BENTHIS_lookup$Description    <- ac(metiers_DCF_BENTHIS_lookup$Description)
+metiers_DCF_BENTHIS_lookup$Description      <- ac(metiers_DCF_BENTHIS_lookup$Description)
 
 
 #-------------------------------------------------------------------------------
