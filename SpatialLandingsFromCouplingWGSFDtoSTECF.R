@@ -14,7 +14,7 @@
  raster_res     <- c(0.08333333,0.08333333) # 5 by 5 minute
  nameAggFile    <- "ALL_AggregatedSweptArea_12062015.RData"
  load(file=file.path(dataPath, nameAggFile)) # get aggResult
-#--------------------------------
+ #--------------------------------
 
 
 

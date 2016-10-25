@@ -309,10 +309,6 @@ wgsfdtot$swept_area_subsurface<- wgsfdtot$swept_area * wgsfdtot$subsurface_prop/
 wgsfdtot$swept_area_surface   <- wgsfdtot$swept_area * (1- wgsfdtot$subsurface_prop/100)
 wgsfdtot$quarter              <- (an(wgsfdtot$month)-1)%/%3+1
 
-save(wgsfdtot,file="C:/joeg/WGSFD/2015/Niels_workflow/output/wgsfdtot2_VMS.RData")
-load("C:/joeg/WGSFD/2015/Niels_workflow/output/wgsfdtot2.RData")
-write.csv(wgsfdtot,file="C:/joeg/WGSFD/2015/Niels_workflow/output/wgsfdtot2.csv")
-
 wgsfdtot_uk                      <- subset(wgsfdtot,country=='GBR')
 wgsfdtot_fra                     <- subset(wgsfdtot,country=='FRA')
 wgsfdtot_fra                     <- subset(wgsfdtot,country=='NEA')
