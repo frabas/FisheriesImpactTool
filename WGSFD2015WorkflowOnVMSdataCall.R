@@ -254,7 +254,7 @@ WGDECagg1$intensity_surf       <- WGDECagg1$swept_area_surface / WGDECagg1$cell_
   #-------------------------------------------------------------------------------
   #- Add ecoregions
   #-------------------------------------------------------------------------------
-eco                            <- readShapePoly(file.path(dataPath,"ices_ecoregions"))
+eco                            <- readShapePoly(file.path(dataPath, "ices_ecoregions"))
 
 write.csv(wgsfdtot,    file=file.path(outPath, "wgsfdtot2.csv"))
 
