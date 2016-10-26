@@ -4,6 +4,17 @@
  ##----------------------------------------------------------------------------##
  ## Overlay with shapefile (e.g. EUNIS habitats) or raster file (e.g. BALANCE habitat)
  ## Author: Francois Bastardie (DTU-Aqua)
+ 
+ ## citations:
+ ## Bastardie, F., Nielsen, J. R., Ulrich, C., Egekvist, J., and Degel, H. 2010.
+ ## Detailed mapping of fishing effort and landings by coupling fishing logbooks with satellite-recorded vessel geo-location. Fisheries Research, 106: 41–53
+
+ ## Hintzen, N. T., Bastardie, F., Beare, D., Piet, G. J., Ulrich, C., Deporte, N., Egekvist, J., et al. 2012. VMStools: Open-source software for the processing, analysis and visualization of fisheries logbook and VMS data. Fisheries Research, 115–116: 31–43.
+ 
+ ## Eigaard O.R., Bastardie F., Hintzen N., Buhl-Mortensen L., Buhl-Mortensen P., Catarino R., Dinesen G.E., et al., 2016b. Benthic impact of fisheries in European waters: the distribution and intensity of bottom trawling. ICES Journal of Marine Science, in press.
+ 
+ ## For BALANCE map:
+ #Al-Hamdani, Z. and Reker, J. (editors), Alanen. U., Andersen, J.H., Bendtsen, J., Bergstrm, U., Dahl, K., Dinesen, G., Erichsen, A., Elhammer, A., Geitner, K., Hermansen, B., Holmberg, J., Kotilainen, A., Leth, J., Lindberg, T., Lindeberg, G., Nyberg, J., Reijonen, A., Ryabchuk, D., Sparrevohn, C., Sørensen, T., Söderkvist, J., Thougaard, L., Vestergaard, O., Zetterlund, S., 2007. Towards marine landscapes in the Baltic Sea. BALANCE Interim Report No 10.  
  ##----------------------------------------------------------------------------##
  ##----------------------------------------------------------------------------##
 

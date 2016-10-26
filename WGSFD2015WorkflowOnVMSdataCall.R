@@ -6,9 +6,17 @@
  ##
  ## ALSO LOOK AT https://github.com/ices-eg/VMS-datacall
  ##
- ##----------------------------------------------------------------------------##
- ##----------------------------------------------------------------------------##
+ 
+ ## citations:
+ ## Bastardie, F., Nielsen, J. R., Ulrich, C., Egekvist, J., and Degel, H. 2010.
+ ## Detailed mapping of fishing effort and landings by coupling fishing logbooks with satellite-recorded vessel geo-location. Fisheries Research, 106: 41–53
 
+ ## Hintzen, N. T., Bastardie, F., Beare, D., Piet, G. J., Ulrich, C., Deporte, N., Egekvist, J., et al. 2012. VMStools: Open-source software for the processing, analysis and visualization of fisheries logbook and VMS data. Fisheries Research, 115–116: 31–43.
+
+ ##Eigaard O.R., Bastardie F., Hintzen N., Buhl-Mortensen L., Buhl-Mortensen P., Catarino R., Dinesen G.E., et al., 2016b. Benthic impact of fisheries in European waters: the distribution and intensity of bottom trawling. ICES Journal of Marine Science, in press.
+ 
+ ##----------------------------------------------------------------------------##
+ ##----------------------------------------------------------------------------##
 
  # GENERAL SETTINGS---------------
  myPath         <- file.path("C:", "Users", "fbas", "Documents", "GitHub")  # to adapt to your own path.

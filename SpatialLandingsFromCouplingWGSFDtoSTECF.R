@@ -3,6 +3,13 @@
  ##----------------------------------------------------------------------------##
  ## Coupling STECF annual landing data per ICES rectangle to VMS data
  ## Author: Francois Bastardie (DTU-Aqua)
+ 
+ ## citations:
+ ## Bastardie, F., Nielsen, J. R., Ulrich, C., Egekvist, J., and Degel, H. 2010.
+ ## Detailed mapping of fishing effort and landings by coupling fishing logbooks with satellite-recorded vessel geo-location. Fisheries Research, 106: 41–53
+
+ ## Hintzen, N. T., Bastardie, F., Beare, D., Piet, G. J., Ulrich, C., Deporte, N., Egekvist, J., et al. 2012. VMStools: Open-source software for the processing, analysis and visualization of fisheries logbook and VMS data. Fisheries Research, 115–116: 31–43.
+
  ##----------------------------------------------------------------------------##
  ##----------------------------------------------------------------------------##
 

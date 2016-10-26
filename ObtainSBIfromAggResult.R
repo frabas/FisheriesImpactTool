@@ -3,6 +3,15 @@
  ##----------------------------------------------------------------------------##
  ## Obtain the SeaBed Impact index from the longevity BENTHIS approach
  ## Author:  Niels Hintzen (IMARES), Francois Bastardie (DTU-Aqua)
+
+ ## citations:
+ ## Bastardie, F., Nielsen, J. R., Ulrich, C., Egekvist, J., and Degel, H. 2010.
+ ## Detailed mapping of fishing effort and landings by coupling fishing logbooks with satellite-recorded vessel geo-location. Fisheries Research, 106: 41–53
+
+ ## Hintzen, N. T., Bastardie, F., Beare, D., Piet, G. J., Ulrich, C., Deporte, N., Egekvist, J., et al. 2012. VMStools: Open-source software for the processing, analysis and visualization of fisheries logbook and VMS data. Fisheries Research, 115–116: 31–43.
+
+  ## Rijnsdorp, A. D., Bastardie, F., Bolam, S. G., Buhl-Mortensen L., Eigaard O.R., Hamon K.G., Hiddink, J.G., et al. 2016. Towards a framework for the quantitative assessment of trawling impacts on the seabed and benthic ecosystem. ICES Journal of Marine Science (2016), 73(Supplement 1), i127–i138. doi:10.1093/icesjms/fsv207
+  
  ##----------------------------------------------------------------------------##
  ##----------------------------------------------------------------------------##
 

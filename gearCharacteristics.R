@@ -1,4 +1,13 @@
-# Francois Bastardie to WGSFD 2015
+ ##----------------------------------------------------------------------------##
+ ##----------------------------------------------------------------------------##
+
+ # Francois Bastardie to WGSFD 2015
+
+ ## citations:
+ ## Eigaard, O., Bastardie, F., Breen, M., Dinesen, G., Hintzen, N., Laffargue, P., Nielsen, J., et al. 2016a. Estimating seabed pressure from demersal trawls, seines, and dredges based on gear design and dimensions. ICES Journal of Marine Science, 73 (Supplement 1): i27–i43. doi:10.1093/icesjms/fsv099
+ 
+ ##----------------------------------------------------------------------------##
+ ##----------------------------------------------------------------------------##
 
 
 #outPath   <- file.path("C:", "BENTHIS", "data_gear_spec_questionnaire")
