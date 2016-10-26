@@ -77,7 +77,7 @@ wgsfd1$cell_area       <- (cos(55.875 *pi/180) * distance(0,0,0,1) )/20  * (dist
 #-------------------------------------------------------------------------------
 #- Read in metier-conversion table
 #-------------------------------------------------------------------------------
-metiers_DCF_BENTHIS_lookup                  <- read.table(file=file.path(dataPath, "lookup_metiers_WGSFD2016.csv"), sep=";", header=TRUE)
+metiers_DCF_BENTHIS_lookup                  <- read.table(file=file.path(dataPath, "lookup_metiers_WGSFD2016.csv"), sep=";", header=TRUE, stringsAsFactors=FALSE)
 metiers_DCF_BENTHIS_lookup$Benthis_metiers  <- ac(metiers_DCF_BENTHIS_lookup$Benthis_metiers)
 metiers_DCF_BENTHIS_lookup$JNCC_grouping    <- ac(metiers_DCF_BENTHIS_lookup$JNCC_grouping)
 metiers_DCF_BENTHIS_lookup$Fishing_category <- ac(metiers_DCF_BENTHIS_lookup$Fishing_category)
@@ -203,8 +203,8 @@ wgsfdtot                      <- wgsfdtot[completeSubset,]
 wgsfdtot$totweight            <- an(wgsfdtot$totweight)
 wgsfdtot$totvalue             <- an(wgsfdtot$totvalue)
 
-HELCOMagg1                    <- aggregate(wgsfdtot[,c("swept_area","kw_fishinghours","fishing_hours")],by=as.list(wgsfdtot[,c("c_square","year","Category","HELCOMgroups","type")]), FUN=sum, na.rm=TRUE)
-HELCOMagg2                    <- aggregate(wgsfdtot[,c("swept_area","kw_fishinghours","fishing_hours")],by=as.list(wgsfdtot[,c("c_square","year","quarter","Category","HELCOMgroups","type")]), FUN=sum, na.rm=TRUE)
+HELCOMagg1                    <- aggregate(wgsfdtot[,c("swept_area","swept_area_subsurface", "kw_fishinghours","fishing_hours")],by=as.list(wgsfdtot[,c("c_square","year","Category","HELCOMgroups","type")]), FUN=sum, na.rm=TRUE)
+HELCOMagg2                    <- aggregate(wgsfdtot[,c("swept_area","swept_area_subsurface", "kw_fishinghours","fishing_hours")],by=as.list(wgsfdtot[,c("c_square","year","quarter","Category","HELCOMgroups","type")]), FUN=sum, na.rm=TRUE)
 
 subOSPAR                      <- subset(wgsfdtot,NEAFC==0)
 OSPARagg1                     <- aggregate(subOSPAR[,c("swept_area","swept_area_subsurface","swept_area","kw_fishinghours","fishing_hours")],by=as.list(subOSPAR[,c("c_square","year","quarter","Category","vessel_length_category","type")]),FUN=sum,na.rm=T)
@@ -213,7 +213,7 @@ subWGDEC                      <- subset(NEAFCtot,NEAFC==1 & year %in% 2013:2014)
 WGDECagg1                     <- aggregate(subWGDEC[,c("swept_area_subsurface","swept_area","kw_fishinghours","fishing_hours")],by=as.list(subWGDEC[,c("c_square","year","Category","type")]),FUN=sum, na.rm=TRUE)
 
 subDCF                        <- subset(wgsfdtot,NEAFC==0)
-DCFagg1                       <- aggregate(subDCF[,c("swept_area","swept_area_subsurface","swept_area_surface")],by=as.list(subDCF[,c("c_square","year","bottomgear","type")]), FUN=sum, na.rm=TRUE)
+DCFagg1                       <- aggregate(subDCF[,c("swept_area","swept_area_subsurface")],by=as.list(subDCF[,c("c_square","year","bottomgear","type")]), FUN=sum, na.rm=TRUE)
 
 #-------------------------------------------------------------------------------
 #- Calculate fishing intensity
@@ -225,34 +225,30 @@ var <- distance(0,0,0,1)
 
 DCFagg1$intensity_total      <- DCFagg1$swept_area / DCFagg1$cell_area
 DCFagg1$intensity_subsurf    <- DCFagg1$swept_area_subsurface / DCFagg1$cell_area
-DCFagg1$intensity_surf       <- DCFagg1$swept_area_surface / DCFagg1$cell_area
 
 OSPARagg1                       <- cbind(OSPARagg1,CSquare2LonLat(OSPARagg1$c_square,degrees=0.05))
 OSPARagg1$cell_area             <- (cos(OSPARagg1$SI_LATI *pi/180) * distance(0,0,0,1) )/20  * (distance(0,0,0,1)/20)
 
 OSPARagg1$intensity_total      <- OSPARagg1$swept_area / OSPARagg1$cell_area
 OSPARagg1$intensity_subsurf    <- OSPARagg1$swept_area_subsurface / OSPARagg1$cell_area
-OSPARagg1$intensity_surf       <- OSPARagg1$swept_area_surface / OSPARagg1$cell_area
 
 HELCOMagg1                       <- cbind(HELCOMagg1,CSquare2LonLat(HELCOMagg1$c_square,degrees=0.05))
 HELCOMagg1$cell_area             <- (cos(HELCOMagg1$SI_LATI *pi/180) * distance(0,0,0,1) )/20  * (distance(0,0,0,1)/20)
 
 HELCOMagg1$intensity_total      <- HELCOMagg1$swept_area / HELCOMagg1$cell_area
 HELCOMagg1$intensity_subsurf    <- HELCOMagg1$swept_area_subsurface / HELCOMagg1$cell_area
-HELCOMagg1$intensity_surf       <- HELCOMagg1$swept_area_surface / HELCOMagg1$cell_area
 
 HELCOMagg2                       <- cbind(HELCOMagg2,CSquare2LonLat(HELCOMagg2$c_square,degrees=0.05))
 HELCOMagg2$cell_area             <- (cos(HELCOMagg2$SI_LATI *pi/180) * distance(0,0,0,1) )/20  * (distance(0,0,0,1)/20)
 
 HELCOMagg2$intensity_total      <- HELCOMagg2$swept_area / HELCOMagg2$cell_area
 HELCOMagg2$intensity_subsurf    <- HELCOMagg2$swept_area_subsurface / HELCOMagg2$cell_area
-HELCOMagg2$intensity_surf       <- HELCOMagg2$swept_area_surface / HELCOMagg2$cell_area
 
 WGDECagg1                       <- cbind(WGDECagg1,CSquare2LonLat(WGDECagg1$c_square,degrees=0.05))
 WGDECagg1$cell_area             <- (cos(WGDECagg1$SI_LATI *pi/180) * distance(0,0,0,1) )/20  * (distance(0,0,0,1)/20)
 
-WGDECagg1$intensity_subsurf    <- WGDECagg1$swept_area_subsurface / WGDECagg1$cell_area
-WGDECagg1$intensity_surf       <- WGDECagg1$swept_area_surface / WGDECagg1$cell_area
+WGDECagg1$intensity_total       <- WGDECagg1$swept_area / WGDECagg1$cell_area
+WGDECagg1$intensity_subsurf     <- WGDECagg1$swept_area_subsurface / WGDECagg1$cell_area
 
 
 #-------------------------------------------------------------------------------
