@@ -9,6 +9,8 @@
 
  ## Hintzen, N. T., Bastardie, F., Beare, D., Piet, G. J., Ulrich, C., Deporte, N., Egekvist, J., et al. 2012. VMStools: Open-source software for the processing, analysis and visualization of fisheries logbook and VMS data. Fisheries Research, 115–116: 31–43.
  
+ ## Eigaard, O., Bastardie, F., Breen, M., Dinesen, G., Hintzen, N., Laffargue, P., Nielsen, J., et al. 2016a. Estimating seabed pressure from demersal trawls, seines, and dredges based on gear design and dimensions. ICES Journal of Marine Science, 73 (Supplement 1): i27–i43. doi:10.1093/icesjms/fsv099
+ 
  ## Eigaard O.R., Bastardie F., Hintzen N., Buhl-Mortensen L., Buhl-Mortensen P., Catarino R., Dinesen G.E., et al., 2016b. Benthic impact of fisheries in European waters: the distribution and intensity of bottom trawling. ICES Journal of Marine Science, in press.
  ##----------------------------------------------------------------------------##
  ##----------------------------------------------------------------------------##

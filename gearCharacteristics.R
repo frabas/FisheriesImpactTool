@@ -9,17 +9,8 @@
  ##----------------------------------------------------------------------------##
  ##----------------------------------------------------------------------------##
 
-
-#outPath   <- file.path("C:", "BENTHIS", "data_gear_spec_questionnaire")
-outPath   <- file.path("V:", "USER", "JSV","WGSFD2015","Sharepoint_downloads","Data")
-
-##-------------------------------------------------
-##-------------------------------------------------
-# BENTHIS input (Eigaard et al 2015 ICESJMS)
-#read.table(file=file.path(outPath, "estimates_for_OT_speed_matrix_13Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_TBB_speed_matrix_13Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_DRB_speed_matrix_13Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_Seine_haul_duration_matrix_13Jan15.txt"))
+ 
+ # BENTHIS input 
 
 av_fspeed_per_metier <- data.frame(
                                 benthis_met=c( "OT_CRU", "OT_DMF", "OT_MIX",    "OT_SPF", "TBB_CRU", "TBB_DMF", "TBB_MOL", "DRB_MOL"),
@@ -46,12 +37,7 @@ haul_duration_seiners <- c(SDN_DMF=2.591234, SSC_DMF=1.912500)
 
 ##-------------------------------------------------
 ##-------------------------------------------------
-#read.table(file=file.path(outPath, "estimates_for_OT_kW_matrix_14Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_TBB_kW_matrix_14Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_DRB_kW_matrix_14Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_Seine_kW_matrix_14Jan15.txt"))
-
-# BENTHIS input (Eigaard et al 2015 ICESJMS)
+# BENTHIS input 
 av_kw_per_metier <- data.frame(
                                 benthis_met=c("OT_CRU","OT_DMF","OT_MIX","OT_SPF", "TBB_CRU", "TBB_DMF", "TBB_MOL", "DRB_MOL", "SDN_DMF", "SSC_DMF"),
                                 av_kw=c(345.5205, 441.6667, 400.6089,  883.8421, 210.6250, 822.1667, 107.1773, 382.4375, 167.6765, 481.7950 ),
@@ -72,12 +58,7 @@ rownames(av_kw_per_metier) <- av_kw_per_metier[,1]
 
 ##-------------------------------------------------
 ##-------------------------------------------------
-#read.table(file=file.path(outPath, "estimates_for_OT_LOA_matrix_14Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_TBB_LOA_matrix_14Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_DRB_LOA_matrix_14Jan15.txt"))
-#read.table(file=file.path(outPath, "estimates_for_Seine_LOA_matrix_14Jan15.txt"))
-
-# BENTHIS input (Eigaard et al 2015 ICESJMS)
+# BENTHIS input 
 av_loa_per_metier <- data.frame(
                                 benthis_met=c("OT_CRU",         "OT_DMF",         "OT_MIX",        "OT_SPF", "TBB_CRU", "TBB_DMF", "TBB_MOL", "DRB_MOL", "SDN_DMF", "SSC_DMF"  ),
                                 av_loa=c(18.67739, 19.80000, 20.13774,  34.38526, 20.76500, 33.88660, 10.14545, 24.59848, 18.91915, 23.11750),
@@ -86,7 +67,7 @@ av_loa_per_metier <- data.frame(
                                 )
 rownames(av_loa_per_metier) <- av_loa_per_metier[,1]
 
-# BENTHIS input (Eigaard et al 2015 ICESJMS)
+# BENTHIS input 
 av_loa_per_metier <- data.frame(
                                 benthis_met=c("OT_CRU",         "OT_DMF",         "OT_MIX",         "OT_MIX_ARA",     "OT_MIX_CRU",     "OT_MIX_CRU_DMF", "OT_MIX_DMF_BEN", "OT_MIX_DMF_PEL", "OT_MIX_TGS_CTC", "OT_MIX_TGS_OCC", "OT_SPF",   "TBB_CRU", "TBB_DMF", "TBB_MOL", "DRB_MOL", "SDN_DMF", "SSC_DMF"  ),
                                 av_loa=c(18.67739, 19.80000, 20.13774, 20.47996, 21.68500, 19.89515, 24.36896, 23.74500, 23.83000, 22.85667, 34.38526, 20.76500, 33.88660, 10.14545, 24.59848, 18.91915, 23.11750),
@@ -99,16 +80,8 @@ rownames(av_loa_per_metier) <- av_loa_per_metier[,1]
 ##-------------------------------------------------
 ##-------------------------------------------------
 
-# BENTHIS input (Eigaard et al 2015 ICESJMS)
-
-#read.table(file=file.path(outPath, "estimates_for_OT_nls_DoS_vs_LOA_or_kW_per_metier_10Oct14.txt"))
-#read.table(file=file.path(outPath, "estimates_for_DRB_nls_dredgew_vs_LOA_or_kW_per_metier.txt"))
-#read.table(file=file.path(outPath, "estimates_for_TBB_nls_beamw_vs_LOA_or_kW_per_metier.txt"))
-#read.table(file=file.path(outPath, "estimates_for_DS_nls_seineropel_vs_LOA_or_kW_per_metier.txt"))
-
-
-
-  gear_param_per_metier <- data.frame(
+# BENTHIS input 
+gear_param_per_metier <- data.frame(
   a_metier=c('OT_CRU','OT_CRU','OT_DMF','OT_DMF','OT_MIX','OT_MIX','OT_MIX_DMF_BEN','OT_MIX_DMF_BEN','OT_MIX_DMF_PEL','OT_MIX_DMF_PEL','OT_MIX_CRU','OT_MIX_CRU', 'OT_MIX_CRU_DMF', 'OT_MIX_CRU_DMF', 'OT_SPF', 'OT_SPF',
              'DRB_MOL', 'DRB_MOL',
              "TBB_CRU","TBB_CRU","TBB_DMF","TBB_DMF","TBB_MOL","TBB_MOL",
@@ -133,12 +106,7 @@ rownames(av_loa_per_metier) <- av_loa_per_metier[,1]
 
 ##-------------------------------------------------
 ##-------------------------------------------------
-# BENTHIS input (Eigaard et al 2015 ICESJMS)
-#read.table(file=file.path(outPath, "estimates_for_OT_subcomponents_matrix_6Jan15_13degrees.txt")) # this one is not corresponding to the one in the paper!
-#read.table(file=file.path(outPath, "estimates_for_Seine_haul_duration_matrix_13Jan15.txt"))
-
-#read.table(file=file.path(outPath, "Subsurface_proportion_by_metier_Figure10_Eigaard_et_al.txt"), sep="\t", header=TRUE)
-
+# BENTHIS input 
 subsurface_proportion_by_metier <- data.frame(
                                 benthis_met=c('OT_SPF' ,'SDN_DMF', 'OT_DMF', 'SSC_DMF',   'OT_MIX', 'OT_CRU','TBB_CRU', 'TBB_DMF' , 'TBB_MOL', 'DRB_MOL' ),
                                 subsurface_prop= c(2.8,   5.0,   7.8,   14.0,  14.7,   32.1,  52.2, 100.0, 100.0, 100.0)
@@ -175,60 +143,6 @@ BenthisGearWidths <- data.frame(benthis_met=metiers,
      BenthisGearWidths[i,"gear_width"]  <-   eval(parse(text= as.character(this[1, 'equ']))) / 1000 # converted in km
    }
 
-
-
-# export
-write.table (BenthisGearWidths, file=file.path(outPath, "benthisGearWidthsForWGSFD15.txt"), row.names=FALSE, col.names=TRUE, quote=FALSE)
-
-
-
-##-------------------------------------------------
-##-------------------------------------------------
-# Example of use
-
-# import data
-wgsfd                        <- read.table(file=file.path(dataPath,"VMS_Table_09062015_fixed.txt"), sep=";", header=TRUE)
-head(wgsfd)
-
-metiers_DCF_BENTHIS_lookup   <- read.table(file=file.path( dataPath, "Lookup_Metiers_incl_log.csv"), sep=",", header=TRUE)
-
-
-
-# assign a benthis metier from a look up table
-wgsfd$benthis_met          <- factor(wgsfd$LE_MET_level6) # init
-levels (wgsfd$benthis_met) <- metiers_DCF_BENTHIS_lookup$Benthis_metiers[match(levels (wgsfd$benthis_met), metiers_DCF_BENTHIS_lookup$LE_MET_level6)]
-
-
-# merge with info from BENTHIS
-nrow(wgsfd)
-wgsfdp <- merge(wgsfd, BenthisGearWidths, by.x="benthis_met", by.y= "benthis_met")
-nrow(wgsfdp)   # some losses (likely gillnetters or some metiers at NA)
-
-an <- function(x) as.numeric(as.character(x))
-
-idx                             <- !wgsfdp$benthis_met %in% c("SDN_DMF", "SSC_DMF") # exclude seiners
-wgsfdp$swept_area               <- NA
-wgsfdp$swept_area[idx]          <- an(wgsfdp$fishing_hours[idx]) * an(wgsfdp$gear_width[idx]) * an(wgsfdp$avg_fishing_speed[idx])
-
-## caution: specific rules for Seiners
-idx                             <- wgsfdp$benthis_met %in% c("SDN_DMF") # for seiners
-wgsfdp$swept_area[idx]          <- (pi*(an(wgsfdp$gear_width[idx])/(2*pi))^2) *  an(wgsfdp$fishing_hours)[idx]   / haul_duration_seiners["SDN_DMF"]
-
-idx                             <- wgsfdp$benthis_met %in% c("SSC_DMF") # scottish seiners
-wgsfdp$swept_area[idx]          <- (pi*(an(wgsfdp$gear_width[idx])/(2*pi))^2) *  an(wgsfdp$fishing_hours)[idx]   / haul_duration_seiners["SSC_DMF"]
-wgsfdp$swept_area[idx]          <- wgsfdp$swept_area[idx]  *1.5 # ad hoc correction to account for the SSC specificities
-
-
-
-
-# match to grid cell area in km2 and standardize the swept areas
-# to correct for the latitude bias (the longitude goes to 0 when direction to North pole) eg a cell of 1 by 1 minute is:
-# (1/60)*78.847*(1/60)*111 =  2.431116 km^2  at 45 degree in lat
-# (1/60)*28.902*(1/60)*111 =  0.891145 km^2  at 75 degree in lat
-# Length of a degree of longitude = cos (latitude) * 111.325 kilometers
-
-wgsfdp$cell_area     <- (cos(wgsfdp$cell_lati *pi/180) * 111.325 )/60  * (111/60)
-wgsfdp$swept_area    <- wgsfdp$swept_area /  wgsfdp$cell_area # standardize
 
 
 

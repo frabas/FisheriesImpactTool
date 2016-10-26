@@ -100,7 +100,7 @@ for(i in 1:nrow(metiers_DCF_BENTHIS_lookup)){
   print(i)
   idx1                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"Category"]))
   idx2                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"JNCC"])==T)
-  idx3                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"Benthis_metiers_reviewed"])==T)
+  idx3                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"benthis_met"])==T)
   idx4                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"Description"]))
 
   if(length(idx3)>0)
@@ -151,7 +151,7 @@ wgsfdp                      <- merge(wgsfdp,     BenthisGearWidths, by.x="benthi
 idx                         <- !wgsfdp$benthis_met %in% c("SDN_DMF", "SSC_DMF") # exclude seiners
 wgsfdp$swept_area           <- 0
 wgsfdp$swept_area[idx]      <- an(wgsfdp$fishing_hours[idx]) * an(wgsfdp$gear_width[idx]) * an(wgsfdp$avg_fishing_speed_new[idx])*1.852 #conversion from knots to km/hour
-wgsfdp$swept_area[idx]      <- an(wgsfdp$fishing_hours[idx]) * an(wgsfdp$gear_width.x[idx]) * an(wgsfdp$avg_fishing_speed[idx])*1.852 #conversion from knots to km/hour
+wgsfdp$swept_area[idx]      <- an(wgsfdp$fishing_hours[idx]) * an(wgsfdp$gear_width[idx]) * an(wgsfdp$avg_fishing_speed[idx])*1.852 #conversion from knots to km/hour
 
 
 #- caution: specific rules for Seiners
