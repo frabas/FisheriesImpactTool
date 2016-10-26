@@ -131,8 +131,8 @@ datint               <- orderBy(~c_square,data=datint)
 datmean               <- merge(datmean,dat[!duplicated(dat$c_square),c("c_square","Latitude","Longitude")],by="c_square")
 uniqueCells           <- datmean[!duplicated(datmean$c_square),c("c_square","Longitude","Latitude")]
 colnames(uniqueCells) <- c("lgrID","CELL_LONG","CELL_LATI")
-resx                  <- 1/20 #1 minute
-resy                  <- 1/20 #1 minute
+resx                  <- 1/20 #5 minute
+resy                  <- 1/20 #5 minute
 grdc2plot             <- lonLat2SpatialPolygons(lst=lapply(as.list(1:nrow(uniqueCells)),
                                             function(x){
                                               data.frame(SI_LONG=c(uniqueCells[x,"CELL_LONG"]-resx/2,
