@@ -15,6 +15,7 @@
  dataPath       <- file.path(myPath, "FisheriesImpactTool", "Data")
  outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
  shapePath      <- file.path(myPath, "FisheriesImpactTool", "Shapes")
+ codePath       <- file.path(myPath, "FisheriesImpactTool")
  dir.create(outPath)
    
 
@@ -54,7 +55,7 @@ library(vmstools)
 #-------------------------------------------------------------------------------
 #- Read in the raw WGSFD data table 1 only with speeds
 #-------------------------------------------------------------------------------
-wgsfd                  <- read.csv(file.path(dataPath,"VMS_Table_wSpeed2.csv"), header=T, stringsAsFactors=F, sep=",")
+wgsfd                  <- read.csv(file.path(dataPath,"VMS_Table_wspeed.csv"), header=T, stringsAsFactors=F, sep=";")
 #test
 wgsfd1                 <- subset(wgsfd, wgsfd$c_square=='1500:457:383:4')
 
@@ -68,7 +69,7 @@ wgsfd1$cell_area       <- (cos(55.875 *pi/180) * distance(0,0,0,1) )/20  * (dist
 #-------------------------------------------------------------------------------
 #- Read in metier-conversion table
 #-------------------------------------------------------------------------------
-metiers_DCF_BENTHIS_lookup                  <- read.table(file=file.path(dataPath, "Lookup_Metiers_incl_log.csv"), sep=",", header=TRUE)
+metiers_DCF_BENTHIS_lookup                  <- read.table(file=file.path(dataPath, "lookup_metiers_WGSFD2016.csv"), sep=";", header=TRUE)
 metiers_DCF_BENTHIS_lookup$Benthis_metiers  <- ac(metiers_DCF_BENTHIS_lookup$Benthis_metiers)
 metiers_DCF_BENTHIS_lookup$JNCC_grouping    <- ac(metiers_DCF_BENTHIS_lookup$JNCC_grouping)
 metiers_DCF_BENTHIS_lookup$Fishing_category <- ac(metiers_DCF_BENTHIS_lookup$Fishing_category)
@@ -76,7 +77,7 @@ metiers_DCF_BENTHIS_lookup$LE_MET_level6    <- ac(metiers_DCF_BENTHIS_lookup$LE_
 metiers_DCF_BENTHIS_lookup$Metier_level4    <- ac(metiers_DCF_BENTHIS_lookup$Metier_level4)
 metiers_DCF_BENTHIS_lookup$Description      <- ac(metiers_DCF_BENTHIS_lookup$Description)
 
-metiers_tjek <- subset(metiers_DCF_BENTHIS_lookup,metiers_DCF_BENTHIS_lookup$Benthis_metiers=='OT_DMF')
+metiers_tjek <- subset(metiers_DCF_BENTHIS_lookup, metiers_DCF_BENTHIS_lookup$Benthis_metiers_reviewed=='OT_DMF')
 
 #-------------------------------------------------------------------------------
 #- Assign a metier & gear category from a look up table
@@ -91,11 +92,11 @@ for(i in 1:nrow(metiers_DCF_BENTHIS_lookup)){
   print(i)
   idx1                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"Category"]))
   idx2                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"JNCC"])==T)
-  idx3                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"benthis_met"])==T)
+  idx3                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"Benthis_metiers_reviewed"])==T)
   idx4                              <- which(tmpwgsfd[,"LE_MET_level6"] == metiers_DCF_BENTHIS_lookup$LE_MET_level6[i] & is.na(tmpwgsfd[,"Description"]))
 
   if(length(idx3)>0)
-    tmpwgsfd[idx3,"benthis_met"]      <- metiers_DCF_BENTHIS_lookup$Benthis_metiers[i]
+    tmpwgsfd[idx3,"benthis_met"]      <- metiers_DCF_BENTHIS_lookup$Benthis_metiers_reviewed[i]
   if(length(idx2)>0)
     tmpwgsfd[idx2,"JNCC"]             <- metiers_DCF_BENTHIS_lookup$JNCC_grouping[i]
   if(length(idx1)>0)
@@ -109,7 +110,7 @@ for(i in 1:nrow(metiers_DCF_BENTHIS_lookup)){
   idx4                              <- which(tmpwgsfd[,"gear_code"] == metiers_DCF_BENTHIS_lookup$Metier_level4[i] & is.na(tmpwgsfd[,"Description"])==T)
   
   if(length(idx3)>0)
-    tmpwgsfd[idx3,"benthis_met"]    <- metiers_DCF_BENTHIS_lookup$Benthis_metiers[i]
+    tmpwgsfd[idx3,"benthis_met"]    <- metiers_DCF_BENTHIS_lookup$Benthis_metiers_reviewed[i]
   if(length(idx2)>0)
     tmpwgsfd[idx2,"JNCC"]           <- metiers_DCF_BENTHIS_lookup$JNCC_grouping[i]
   if(length(idx1)>0)
@@ -123,7 +124,7 @@ wgsfdp                                  <- wgsfd
 #-------------------------------------------------------------------------------
 #- Add gear widths to dataset & calculate swept area
 #-------------------------------------------------------------------------------
-source(file.path(codePath, "02_gearCharacteristics.r"))
+source(file.path(codePath, "gearCharacteristics.R"))
 
 BenthisGearWidths$gear_width_log <- NA 
 
