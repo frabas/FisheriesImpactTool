@@ -180,8 +180,6 @@ yrange                      <- summary(ICESareas)$bbox["y",]
 #- Aggregate data by CSquare, year, quarter, Category
 #-------------------------------------------------------------------------------
 
-#- Add column with indication if its NEAFC or not
-wgsfdtot$NEAFC                <- ifelse(wgsfdtot$country=="NEA", 1, 0)
 wgsfdtot$Category[wgsfdtot$Description=="Danish_seine"]             <- "Demersal seine"
 wgsfdtot$Category[wgsfdtot$Description=="Scottish_Seine"]           <- "Demersal seine"
 wgsfdtot$Category[wgsfdtot$Description=="Pair_seine"]               <- "Demersal seine"
@@ -192,13 +190,10 @@ wgsfdtot$Category[wgsfdtot$Description=="Purse_seine"]              <- "Purse se
 wgsfdtot$bottomgear           <- wgsfdtot$Category %in% c("Beam","Dredge","Otter","Demersal seine")
 wgsfdtot$HELCOMgroups         <- wgsfdtot$Category %in% c("Beam","Dredge","Otter","Demersal Seine","Longlines","Midwater")
 wgsfdtot$swept_area_subsurface<- wgsfdtot$swept_area * wgsfdtot$subsurface_prop/100
-wgsfdtot$swept_area           <- wgsfdtot$swept_area 
 wgsfdtot$quarter              <- (an(wgsfdtot$month)-1)%/%3+1
 
 #- Select  dataset
-completeSubset                <- complete.cases(wgsfdtot[,c("fishing_hours","kw_fishinghours","totweight","c_square","year","quarter","vessel_length_category","Category","Description","NEAFC","type")])
-NEAFCtot                      <- complete.cases(wgsfdtot[,c("fishing_hours","kw_fishinghours","totweight","c_square","year","quarter","vessel_length_category","Category","Description","NEAFC","type")])
-NEAFCtot                      <- wgsfdtot[NEAFCtot,]
+completeSubset                <- complete.cases(wgsfdtot[,c("fishing_hours","kw_fishinghours","totweight","c_square","year","quarter","vessel_length_category","Category","Description","type")])
 wgsfdtot                      <- wgsfdtot[completeSubset,]
 wgsfdtot$totweight            <- an(wgsfdtot$totweight)
 wgsfdtot$totvalue             <- an(wgsfdtot$totvalue)
@@ -206,31 +201,11 @@ wgsfdtot$totvalue             <- an(wgsfdtot$totvalue)
 HELCOMagg1                    <- aggregate(wgsfdtot[,c("swept_area","swept_area_subsurface", "kw_fishinghours","fishing_hours")],by=as.list(wgsfdtot[,c("c_square","year","Category","HELCOMgroups","type")]), FUN=sum, na.rm=TRUE)
 HELCOMagg2                    <- aggregate(wgsfdtot[,c("swept_area","swept_area_subsurface", "kw_fishinghours","fishing_hours")],by=as.list(wgsfdtot[,c("c_square","year","quarter","Category","HELCOMgroups","type")]), FUN=sum, na.rm=TRUE)
 
-subOSPAR                      <- subset(wgsfdtot,NEAFC==0)
-OSPARagg1                     <- aggregate(subOSPAR[,c("swept_area","swept_area_subsurface","swept_area","kw_fishinghours","fishing_hours")],by=as.list(subOSPAR[,c("c_square","year","quarter","Category","vessel_length_category","type")]),FUN=sum,na.rm=T)
-
-subWGDEC                      <- subset(NEAFCtot,NEAFC==1 & year %in% 2013:2014)
-WGDECagg1                     <- aggregate(subWGDEC[,c("swept_area_subsurface","swept_area","kw_fishinghours","fishing_hours")],by=as.list(subWGDEC[,c("c_square","year","Category","type")]),FUN=sum, na.rm=TRUE)
-
-subDCF                        <- subset(wgsfdtot,NEAFC==0)
-DCFagg1                       <- aggregate(subDCF[,c("swept_area","swept_area_subsurface")],by=as.list(subDCF[,c("c_square","year","bottomgear","type")]), FUN=sum, na.rm=TRUE)
-
 #-------------------------------------------------------------------------------
 #- Calculate fishing intensity
 #-------------------------------------------------------------------------------
-DCFagg1                       <- cbind(DCFagg1,CSquare2LonLat(DCFagg1$c_square,degrees=0.05))
-DCFagg1$cell_area             <- (cos(DCFagg1$SI_LATI *pi/180) * distance(0,0,0,1) )/20  * (distance(0,0,0,1)/20)
 
 var <- distance(0,0,0,1)
-
-DCFagg1$intensity_total      <- DCFagg1$swept_area / DCFagg1$cell_area
-DCFagg1$intensity_subsurf    <- DCFagg1$swept_area_subsurface / DCFagg1$cell_area
-
-OSPARagg1                       <- cbind(OSPARagg1,CSquare2LonLat(OSPARagg1$c_square,degrees=0.05))
-OSPARagg1$cell_area             <- (cos(OSPARagg1$SI_LATI *pi/180) * distance(0,0,0,1) )/20  * (distance(0,0,0,1)/20)
-
-OSPARagg1$intensity_total      <- OSPARagg1$swept_area / OSPARagg1$cell_area
-OSPARagg1$intensity_subsurf    <- OSPARagg1$swept_area_subsurface / OSPARagg1$cell_area
 
 HELCOMagg1                       <- cbind(HELCOMagg1,CSquare2LonLat(HELCOMagg1$c_square,degrees=0.05))
 HELCOMagg1$cell_area             <- (cos(HELCOMagg1$SI_LATI *pi/180) * distance(0,0,0,1) )/20  * (distance(0,0,0,1)/20)
@@ -244,29 +219,40 @@ HELCOMagg2$cell_area             <- (cos(HELCOMagg2$SI_LATI *pi/180) * distance(
 HELCOMagg2$intensity_total      <- HELCOMagg2$swept_area / HELCOMagg2$cell_area
 HELCOMagg2$intensity_subsurf    <- HELCOMagg2$swept_area_subsurface / HELCOMagg2$cell_area
 
-WGDECagg1                       <- cbind(WGDECagg1,CSquare2LonLat(WGDECagg1$c_square,degrees=0.05))
-WGDECagg1$cell_area             <- (cos(WGDECagg1$SI_LATI *pi/180) * distance(0,0,0,1) )/20  * (distance(0,0,0,1)/20)
-
-WGDECagg1$intensity_total       <- WGDECagg1$swept_area / WGDECagg1$cell_area
-WGDECagg1$intensity_subsurf     <- WGDECagg1$swept_area_subsurface / WGDECagg1$cell_area
-
 
 #-------------------------------------------------------------------------------
-#- Populate the SpatialPolygons file with the output
+#- Export
 #-------------------------------------------------------------------------------
-
-  #-------------------------------------------------------------------------------
-  #- Add ecoregions
-  #-------------------------------------------------------------------------------
-eco                            <- readShapePoly(file.path(dataPath, "ices_ecoregions"))
-
-write.csv(wgsfdtot,    file=file.path(outPath, "wgsfdtot2.csv"))
-
-OSPAR                          <- subset(OSPARagg1,Category %in% c("Beam","Dredge","Otter","Demersal seine"))
-write.csv(OSPAR,       file=file.path(outPath,"OSPAR2015_2.csv"))
-write.csv(OSPAR,       file=file.path(outPath, "OSPAR2015_VMS_2.csv"))
-
-write.csv(OSPARagg1,   file=file.path(outPath, "OSPARagg1_2.csv"))
 
 write.csv(HELCOMagg2,  file=file.path(outPath, "HELCOM2015_2.csv"))
+
+
+#-------------------------------------------------------------------------------
+#- Rasterize
+#-------------------------------------------------------------------------------
+#eco                            <- readShapePoly(file.path(dataPath, "ices_ecoregions"))
+
+ example_data <- TRUE
+ if(!example_data){
+ # rasterize with e.g. 1 by 1 minute
+ library(raster)
+ xrange      <- range(HELCOMagg2$SI_LONG, na.rm=TRUE)
+ yrange      <- range(HELCOMagg2$SI_LATI, na.rm=TRUE)
+
+ # surface impact, all gears
+ r           <- raster(xmn=xrange[1], xmx=xrange[2], ymn=yrange[1], ymx=yrange[2], res=raster_res, crs=CRS("+proj=longlat +datum=WGS84"))
+ some_coords <- SpatialPoints(cbind(SI_LONG=HELCOMagg2$SI_LONG, SI_LATI=HELCOMagg2$SI_LATI))
+ rstr        <- rasterize(x=some_coords, y=r, field=HELCOMagg2$swept_area /length(unique(HELCOMagg2$years)), fun="sum")  # divided by nb of years to obtain an annual average fishing intensity
+ plot(rstr, xlim=c(-5,13), ylim=c(53,60))
+ #a           <- area(rstr)
+ #rstr_std    <- rstr/a  # already done earlier in the source
+ rstr_std     <- rstr
+ library(rgdal)
+ rstr_eea     <- projectRaster(rstr_std, crs="+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs")  # European EEA projection
+ rstr_eea[is.na(rstr_eea)] <- -999  # arbitrary code, to get rid of true 0s in GIS
+ rstr_eea[rstr_eea<0.001]  <- -999
+ writeRaster(rstr_eea, file.path(outPath,"SurfaceHELCOMagg2rasterEEA"), format = "GTiff", overwrite=TRUE)
+ }
+
+
 
