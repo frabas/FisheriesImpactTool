@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/70915901.svg)](https://zenodo.org/badge/latestdoi/70915901)
+https://zenodo.org/badge/latestdoi/70915901
 
 The tool workflow (see diagram) is designed to answer the question about how much fishing pressure affects 
 the benthic habitats and communities (MSFD Descriptor 6) 
