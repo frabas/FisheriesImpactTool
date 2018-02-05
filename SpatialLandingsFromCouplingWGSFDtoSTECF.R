@@ -23,7 +23,9 @@
  load(file=file.path(dataPath, nameAggFile)) # get aggResult
  #--------------------------------
 
-
+  library(maptools)
+  library(maps)
+     
 
 
 #----------------
@@ -66,7 +68,7 @@ if(is_all_gears){
      for (a_year in all_years){
         filename  <- paste("HELCOM_effort_year_vms_",a_year ,".shp", sep='')     # ALL GEARS
         vms_path  <- file.path (dataPath, "HELCOM_mapping_fishing_intensity_and_effort_data_outputs_2015", "Effort")
-        vms_shp   <- readShapePoly(file.path(vms_path, filename), proj4string=CRS(as.character("+proj=longlat +ellps=GCS_WGS_1984")) )
+        vms_shp   <- readShapePoly(file.path(vms_path, filename), proj4string=CRS(as.character("+proj=longlat +ellps=WGS84")) )
         vms <- as.data.frame(vms_shp)
         vms$rectangle <- ICESrectangle(vms)
         vms$gear       <- factor("All")
@@ -91,21 +93,24 @@ for (a_year in all_years){
 
        filename  <- paste("HELCOM_effort_quarter",a_year,"_",a_gear,"_",a_quarter,".shp", sep="") # PER GEAR, PER QUARTER, A YEAR
        vms_path  <- file.path (dataPath, "HELCOM_mapping_fishing_intensity_and_effort_data_outputs_2015", "Effort")
-       vms_shp   <- readShapePoly(file.path(vms_path, filename), proj4string=CRS(as.character("+proj=longlat +ellps=GCS_WGS_1984")) )
+       vms_shp   <- readShapePoly(file.path(vms_path, filename), proj4string=CRS(as.character("+proj=longlat +ellps=WGS84")) )
        
 
        # check with plot
-       if(FALSE){
+       if(TRUE){
         library(maptools)
+        library(maps)
+        library(mapdata)
         plot(vms_shp, border=FALSE)
         names(vms_shp) # return the name of the coding variable
         #Turn the polygons into spatial polygons
-        sp                  <- SpatialPolygons(vms_shp@polygons, proj4string=CRS("+proj=longlat +ellps=GCS_WGS_1984"))
+        sp                  <- SpatialPolygons(vms_shp@polygons, proj4string=CRS("+proj=longlat +ellps=WGS84"))
         dd                  <- cut(vms_shp$fishing_ho, breaks=c(-1,10,100,250, 500,1000,5000,10000))
         some_colors         <- dd
         levels(some_colors) <- rev(heat.colors(7))
         plot(sp, border=FALSE, col= as.character(some_colors))
         map("worldHires",add=TRUE, res=0,fill=TRUE,col="darkgreen", xlim=c(5,25), ylim=c(48,62)); map.axes()
+        savePlot(file.path(getwd(), "Outputs", paste("HELCOM_effort_quarter",a_year,"_",a_gear,"_",a_quarter,".jpeg", sep="")), type="jpeg")
        }
        
 
@@ -262,8 +267,8 @@ for (i in 1: nrow(coord)) rect(coord[i, "mid_lon"]-resx/2, coord[i,"mid_lat"]-re
 
     # then, rasterize
     library(raster)
-    xrange      <- range(vmspp_this$mid_lon, na.rm=TRUE)
-    yrange      <- range(vmspp_this$mid_lat, na.rm=TRUE)
+    xrange      <- range(vmspp$mid_lon, na.rm=TRUE)
+    yrange      <- range(vmspp$mid_lat, na.rm=TRUE)
 
     r           <- raster(xmn=xrange[1], xmx=xrange[2], ymn=yrange[1], ymx=yrange[2], res=raster_res, crs=CRS("+proj=longlat +datum=WGS84"))
     some_coords <- SpatialPoints(cbind(SI_LONG=vmspp_this$mid_lon, SI_LATI=vmspp_this$mid_lat))
@@ -275,6 +280,11 @@ for (i in 1: nrow(coord)) rect(coord[i, "mid_lon"]-resx/2, coord[i,"mid_lat"]-re
     rstr_eea[rstr_eea<0.001]  <- -999
     writeRaster(rstr_eea, file.path(outPath, paste("DispatchedStecfLandingsOnVMS4", a_species, sep='')), format = "GTiff", overwrite=TRUE)
 
+    # ...and for info:
+    plot(rstr)
+    map("worldHires",add=TRUE, res=0,fill=TRUE,col="darkgreen", xlim=c(5,25), ylim=c(48,62)); map.axes()
+    savePlot(file.path(outPath, paste("DispatchedStecfLandingsOnVMS4", a_species, sep='')), type="jpeg")
+   
  }
 
 
