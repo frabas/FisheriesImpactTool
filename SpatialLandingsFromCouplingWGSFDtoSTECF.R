@@ -19,6 +19,7 @@
  dataPath       <- file.path(myPath, "FisheriesImpactTool", "Data")
  outPath        <- file.path(myPath, "FisheriesImpactTool", "Outputs")
  raster_res     <- c(0.08333333,0.08333333) # 5 by 5 minute
+ raster_res     <- c(0.0501,0.0501) # 3 by 3 minute (slightly more than the strictly 3x3 input data)
  nameAggFile    <- "ALL_AggregatedSweptArea_12062015.RData"
  load(file=file.path(dataPath, nameAggFile)) # get aggResult
  #--------------------------------
@@ -163,6 +164,8 @@ for (a_year in all_years){
 # Landings_(t)_by_rectangle_and_quarter_data(1).csv
 # C:\BENTHIS\STECF
 
+# also look at https://stecf.jrc.ec.europa.eu/dd/effort/graphs-quarter
+
 # CAUTION: You might change the encoding to UTF-8 e.g. in NotePad++ before using the dowmloaded file from JRC!!
 
 stecf_path <- file.path (dataPath, "STECF")
@@ -219,18 +222,58 @@ if(!is_all_gears){
 
 
 #...and then do the merging
-head(vms)   # fine info on hours per c_square
-head(stecf) # fine info on species landings but per rectangle
-stecf$year_rectangle    <- paste(stecf$year, stecf$rectangle, stecf$gear, stecf$quarter, stecf$vesselsize, sep="_")
-vms$year_rectangle      <- paste(vms$year, vms$rectangle, vms$gear, vms$quarter, vms$vesselsize, sep="_")
-sum_effort              <- aggregate(vms$fishing_ho, list(vms$year_rectangle), sum, na.rm=TRUE)
+vms_bt   <- all_vms [all_vms$gear=="MBCG_vms", ]
+stecf_bt <- stecf [stecf$gear=="MBCG_vms", ]
+head(vms_bt)   # fine info on hours per c_square
+head(stecf_bt) # fine info on species landings but per rectangle
+stecf_bt$year_rectangle    <- paste(stecf_bt$year, stecf_bt$rectangle, stecf_bt$gear, stecf_bt$quarter, stecf_bt$vesselsize, sep="_")
+vms_bt$year_rectangle      <- paste(vms_bt$year, vms_bt$rectangle, vms_bt$gear, vms_bt$quarter, vms_bt$vesselsize, sep="_")
+sum_effort              <- aggregate(vms_bt$fishing_ho, list(vms_bt$year_rectangle), sum, na.rm=TRUE)
 colnames(sum_effort)    <- c("year_rectangle", "tot_effort")
-vmsp                    <- merge(vms, sum_effort, by.x="year_rectangle", by.y="year_rectangle")
-vmsp$share_effort       <- vmsp$fishing_ho / vmsp$tot_effort # for dispatching depending on the contribution of that cell to the total effort in that cell
+vmsp_bt                    <- merge(vms_bt, sum_effort, by.x="year_rectangle", by.y="year_rectangle")
+vmsp_bt$share_effort       <- vmsp_bt$fishing_ho / vmsp_bt$tot_effort # for dispatching depending on the contribution of that cell to the total effort in that cell
+vmspp_bt                    <- merge(vmsp_bt, stecf_bt[,c("year_rectangle", "species", "values", "measure")], by.x="year_rectangle", by.y="year_rectangle")
+vmspp_bt$landings_from_cell <- vmspp_bt$values * vmspp_bt$share_effort  # dispatch on cell per species
+
+#...and then do the merging
+vms_ll   <- all_vms [all_vms$gear=="Longlines_VMS", ]
+stecf_ll <- stecf [stecf$gear=="Longlines_VMS", ]
+head(vms_ll)   # fine info on hours per c_square
+head(stecf_ll) # fine info on species landings but per rectangle
+stecf_ll$year_rectangle    <- paste(stecf_ll$year, stecf_ll$rectangle, stecf_ll$gear, stecf_ll$quarter, stecf_ll$vesselsize, sep="_")
+vms_ll$year_rectangle      <- paste(vms_ll$year, vms_ll$rectangle, vms_ll$gear, vms_ll$quarter, vms_ll$vesselsize, sep="_")
+sum_effort              <- aggregate(vms_ll$fishing_ho, list(vms_ll$year_rectangle), sum, na.rm=TRUE)
+colnames(sum_effort)    <- c("year_rectangle", "tot_effort")
+vmsp_ll                    <- merge(vms_ll, sum_effort, by.x="year_rectangle", by.y="year_rectangle")
+vmsp_ll$share_effort       <- vmsp_ll$fishing_ho / vmsp_ll$tot_effort # for dispatching depending on the contribution of that cell to the total effort in that cell
+vmspp_ll                    <- merge(vmsp_ll, stecf_ll[,c("year_rectangle", "species", "values", "measure")], by.x="year_rectangle", by.y="year_rectangle")
+vmspp_ll$landings_from_cell <- vmspp_ll$values * vmspp_ll$share_effort  # dispatch on cell per species
 
 
-vmspp                    <- merge(vmsp, stecf[,c("year_rectangle", "species", "values", "measure")], by.x="year_rectangle", by.y="year_rectangle")
-vmspp$landings_from_cell <- vmspp$values * vmspp$share_effort  # dispatch on cell per species
+#...and then do the merging
+vms_pt   <- all_vms [all_vms$gear=="Midwater_trawl_vms", ]
+stecf_pt <- stecf [stecf$gear=="Midwater_trawl_vms", ]
+head(vms_pt)   # fine info on hours per c_square
+head(stecf_pt) # fine info on species landings but per rectangle
+stecf_pt$year_rectangle    <- paste(stecf_pt$year, stecf_pt$rectangle, stecf_pt$gear, stecf_pt$quarter, stecf_pt$vesselsize, sep="_")
+vms_pt$year_rectangle      <- paste(vms_pt$year, vms_pt$rectangle, vms_pt$gear, vms_pt$quarter, vms_pt$vesselsize, sep="_")
+sum_effort              <- aggregate(vms_pt$fishing_ho, list(vms_pt$year_rectangle), sum, na.rm=TRUE)
+colnames(sum_effort)    <- c("year_rectangle", "tot_effort")
+vmsp_pt                    <- merge(vms_pt, sum_effort, by.x="year_rectangle", by.y="year_rectangle")
+vmsp_pt$share_effort       <- vmsp_pt$fishing_ho / vmsp_pt$tot_effort # for dispatching depending on the contribution of that cept to the total effort in that cept
+vmspp_pt                    <- merge(vmsp_pt, stecf_pt[,c("year_rectangle", "species", "values", "measure")], by.x="year_rectangle", by.y="year_rectangle")
+vmspp_pt$landings_from_cell <- vmspp_pt$values * vmspp_pt$share_effort  # dispatch on cell per species
+
+
+
+
+# join all
+vmspp <- rbind.data.frame(vmspp_bt, vmspp_ll, vmspp_pt)
+vmspp <- aggregate( vmspp$landings_from_cell, 
+                       list(vmspp$year_rectangle, vmspp$c_square, vmspp$year,  
+                       vmspp$mid_lat,  vmspp$mid_lon, vmspp$rectangle, vmspp$species), sum, na.rm=TRUE )
+colnames(vmspp) <-  c("year_rectangle","c_square","year","mid_lat","mid_lon","rectangle","species", "landings_from_cell")
+vmspp$landings_from_cell <- as.numeric(as.character(vmspp$landings_from_cell))
 
 
 #----------------
@@ -273,7 +316,13 @@ for (i in 1: nrow(coord)) rect(coord[i, "mid_lon"]-resx/2, coord[i,"mid_lat"]-re
     r           <- raster(xmn=xrange[1], xmx=xrange[2], ymn=yrange[1], ymx=yrange[2], res=raster_res, crs=CRS("+proj=longlat +datum=WGS84"))
     some_coords <- SpatialPoints(cbind(SI_LONG=vmspp_this$mid_lon, SI_LATI=vmspp_this$mid_lat))
     rstr        <- rasterize(x=some_coords, y=r, field=vmspp_this$landings_from_cell*1000, fun="sum")  # converted in kilo
-    plot(rstr, xlim=c(-5,13), ylim=c(53,60))
+    #plot(rstr, xlim=c(-5,13), ylim=c(53,60))
+    plot(log(rstr), xlim=c(5,25), ylim=c(48,62))
+    map("worldHires",add=TRUE, res=0,fill=TRUE,col="darkgreen", xlim=c(5,25), ylim=c(48,62)); map.axes()
+    title("log of landings per kg in 3' by 3´cells")
+    savePlot(file.path(outPath, paste("DispatchedStecfLandingsOnVMS4log", a_species, sep='')), type="jpeg")
+   
+    
     library(rgdal)
     rstr_eea     <- projectRaster(rstr, crs="+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs")  # European EEA projection
     rstr_eea[is.na(rstr_eea)] <- -999  # arbitrary code, to get rid of true 0s in GIS
@@ -281,8 +330,17 @@ for (i in 1: nrow(coord)) rect(coord[i, "mid_lon"]-resx/2, coord[i,"mid_lat"]-re
     writeRaster(rstr_eea, file.path(outPath, paste("DispatchedStecfLandingsOnVMS4", a_species, sep='')), format = "GTiff", overwrite=TRUE)
 
     # ...and for info:
-    plot(rstr)
+    #rstr2        <- rasterize(x=some_coords, y=r, field=log(vmspp_this$landings_from_cell*1000), fun="sum")  # converted in kilo
+    #brks <- seq(-10, 15, by=0.2) 
+    
+    par(mar=c(3,3,3,5))
+    brks <- exp(seq(0, 9, by=0.2))*10
+    nb <- length(brks)-1 
+    cols <- rev(terrain.colors(nb))
+    plot(rstr, breaks=brks, col=cols, legend=FALSE)
+    plot(rstr, legend.only=TRUE, legend.shrink=1, legend.width=2, zlim=c(0, max(brks)) )
     map("worldHires",add=TRUE, res=0,fill=TRUE,col="darkgreen", xlim=c(5,25), ylim=c(48,62)); map.axes()
+    title("Landings per kg in 3' by 3´cells")
     savePlot(file.path(outPath, paste("DispatchedStecfLandingsOnVMS4", a_species, sep='')), type="jpeg")
    
  }
