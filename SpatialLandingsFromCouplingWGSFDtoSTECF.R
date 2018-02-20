@@ -10,6 +10,12 @@
 
  ## Hintzen, N. T., Bastardie, F., Beare, D., Piet, G. J., Ulrich, C., Deporte, N., Egekvist, J., et al. 2012. VMStools: Open-source software for the processing, analysis and visualization of fisheries logbook and VMS data. Fisheries Research, 115–116: 31–43.
 
+
+
+ ## ILLUSTRATION ON HOW TO MERGE VMS EFFORT PER GEAR WITH STECF LANDING PER GEAR DATA AND PER QUARTER
+ ## unfortunately the use of the 1st 2015 HELCOM data call is restricted to effort layer in 2013 only, bc the other effort years data is not per quarter...
+ ## the second 2017 HELCOM data call to ICES has more recent years but these other years are not per quarter and is not effort but
+ ## fishing intensity of bottom-contact gears only so not useful in our case because we´ll miss the pelagic gears....
  ##----------------------------------------------------------------------------##
  ##----------------------------------------------------------------------------##
 
@@ -64,7 +70,7 @@ ICESrectangle <- function (dF)
 is_all_gears <- FALSE
 all_vms      <- NULL
 if(is_all_gears){
-     all_years    <-  c(2009:2013)
+     all_years    <-  c(2009:2013) 
      
      for (a_year in all_years){
         filename  <- paste("HELCOM_effort_year_vms_",a_year ,".shp", sep='')     # ALL GEARS
@@ -85,6 +91,7 @@ if(is_all_gears){
 
     all_years    <-  c(2013:2013)
     all_quarters <-  paste("q", 1:4, sep='')
+    per_quarter  <- TRUE  # caution: only the 2013 data are per quarter!
     all_gears    <-  c("Longlines_VMS", "Midwater_trawl_vms", "MBCG_vms")   # MBCG: Mobile Bottom Contact Gear
 
 
@@ -92,6 +99,7 @@ for (a_year in all_years){
   for (a_gear in all_gears){
     for (a_quarter in all_quarters){
 
+       
        filename  <- paste("HELCOM_effort_quarter",a_year,"_",a_gear,"_",a_quarter,".shp", sep="") # PER GEAR, PER QUARTER, A YEAR
        vms_path  <- file.path (dataPath, "HELCOM_mapping_fishing_intensity_and_effort_data_outputs_2015", "Effort")
        vms_shp   <- readShapePoly(file.path(vms_path, filename), proj4string=CRS(as.character("+proj=longlat +ellps=WGS84")) )
@@ -172,7 +180,7 @@ stecf_path <- file.path (dataPath, "STECF")
 
 if(is_all_gears){
    # import
-   filename   <- "BAL_Landings_t_by_rectangle_and_quarter_data.txt"    # ALL GEARS, PER YEAR
+   filename   <- "BAL_Landings_t_by_rectangle_and_quarter_data.txt"    # ALL GEARS, PER YEAR & QUARTER
 
 
    stecf      <- read.table(file=file.path(stecf_path, filename), header=TRUE, sep=",", dec=".")
