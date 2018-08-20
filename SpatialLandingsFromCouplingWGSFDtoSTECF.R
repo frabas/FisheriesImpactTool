@@ -87,7 +87,7 @@ if(is_all_gears){
       } else{
       
       
-
+  
 
     all_years    <-  c(2013:2013)
     all_quarters <-  paste("q", 1:4, sep='')
@@ -176,7 +176,10 @@ for (a_year in all_years){
 
 # CAUTION: You might change the encoding to UTF-8 e.g. in NotePad++ before using the dowmloaded file from JRC!!
 
+## NOTE THAT RUSSIAN LANDINGS ARE NOT IN THE JRC DATABASE, BUT HELCOM MAY HAVE RETRIEVE IT FROM some ICES reporting
+
 stecf_path <- file.path (dataPath, "STECF")
+
 
 if(is_all_gears){
    # import
